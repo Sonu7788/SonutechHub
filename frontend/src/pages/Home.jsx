@@ -16,6 +16,7 @@ import {
   Compass,
   FolderCode
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function Home() {
   const [categories, setCategories] = useState([]);
@@ -48,6 +49,11 @@ export default function Home() {
 
   return (
     <div className="space-y-16 pb-20">
+      <SEO
+        title="Master Java DSA & Coding Practice"
+        description="Master Java Data Structures & Algorithms topic by topic. Practice Arrays, Linked Lists, Trees, Graphs, DP with an interactive Java 24 in-browser compiler."
+        keywords="Java DSA, SonuTechHub, Java Algorithms, Coding Interview Java, DSA Practice Track, Online Java Compiler"
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
         {/* Background glow */}

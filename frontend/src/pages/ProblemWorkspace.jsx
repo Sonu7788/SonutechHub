@@ -26,6 +26,7 @@ import {
   Save,
   LogIn
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function ProblemWorkspace() {
   const { idOrSlug } = useParams();
@@ -205,6 +206,11 @@ export default function ProblemWorkspace() {
 
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col bg-[#0b0f19]">
+      <SEO
+        title={`${question.title} (${question.difficulty})`}
+        description={`Solve ${question.title} in Java on SonuTechHub. Category: ${question.category?.name || 'DSA'}. Test against sample and hidden test cases with OpenJDK 24 compiler.`}
+        keywords={`${question.title} Java, ${question.title} solution Java, ${question.tags?.join(', ') || ''}, ${question.category?.name || 'DSA'} Java`}
+      />
       
       {/* Auth Warning Bar if not logged in */}
       {!isAuthenticated && (

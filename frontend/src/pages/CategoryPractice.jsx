@@ -14,6 +14,7 @@ import {
   Sparkles,
   ChevronRight
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function CategoryPractice() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -107,6 +108,11 @@ export default function CategoryPractice() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <SEO
+        title={currentCategory ? `${categories.find(c => c.slug === currentCategory)?.name || currentCategory} Practice Track` : 'Java DSA Category Practice Track'}
+        description={`Practice curated ${currentCategory || 'Data Structures and Algorithms'} questions in Java. Filter by Easy, Medium, Hard with integrated compiler test suites.`}
+        keywords={`Java DSA ${currentCategory || ''}, Java Coding Questions, ${currentCategory || 'Arrays, Strings, Trees, Dynamic Programming'}`}
+      />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /practice
+Allow: /problem/
+
+# Disallow private user and admin portal areas
+Disallow: /admin
+Disallow: /api/
+Disallow: /profile
+
+Sitemap: https://sonutechhub.onrender.com/sitemap.xml
