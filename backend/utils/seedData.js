@@ -23,7 +23,35 @@ export async function seedDatabase() {
       console.log('Created Admin (admin@javadsa.com / admin123) and Student (student@javadsa.com / student123)');
     }
 
-    // 2. Check if Categories exist
+    // 2. Clean/Sanitize any existing question starter codes in MongoDB
+    // (Removes any pre-filled solution logic from older seedings)
+    await Question.updateMany(
+      {
+        $or: [
+          { starterCode: { $regex: /complement|map\.containsKey|StringBuilder|valid = true|isPal|mid = left \+ \(right/ } },
+          { title: 'Two Sum Problem' },
+          { title: 'Valid Palindrome Checker' },
+          { title: 'Binary Search Implementation' },
+          { title: 'Valid Parentheses' },
+          { title: 'Climbing Stairs' }
+        ]
+      },
+      {
+        $set: {
+          starterCode: `import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        // Write your solution here
+        
+    }
+}`
+        }
+      }
+    );
+
+    // 3. Check if Categories exist
     const categoryCount = await Category.countDocuments();
     if (categoryCount === 0) {
       console.log('Seeding DSA categories...');
@@ -46,8 +74,7 @@ export async function seedDatabase() {
       const stackCat = createdCategories.find(c => c.slug === 'stack-and-queue');
       const dpCat = createdCategories.find(c => c.slug === 'dynamic-programming');
 
-      // 3. Seed starter questions with clean boilerplates (NO pre-filled solutions)
-      console.log('Seeding initial questions...');
+      console.log('Seeding initial questions with clean templates...');
       const questionsData = [
         {
           title: 'Two Sum Problem',
