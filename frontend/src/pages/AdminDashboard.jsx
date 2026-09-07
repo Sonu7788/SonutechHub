@@ -367,8 +367,17 @@ export default function AdminDashboard() {
       link.click();
       link.remove();
     } catch (err) {
-      alert('Failed to download template');
+      alert('Failed to download Excel template');
     }
+  };
+
+  const handleDownloadCSVTemplate = () => {
+    const link = document.createElement('a');
+    link.href = '/sample_questions_template.csv';
+    link.setAttribute('download', 'java_dsa_questions_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   };
 
   // Filtered Questions
@@ -754,14 +763,25 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={handleDownloadTemplate}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition-colors"
-                >
-                  <Download className="w-4 h-4 text-amber-400" />
-                  Download Sample Template (.xlsx)
-                </button>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleDownloadTemplate}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition-colors"
+                    title="Download Excel Template (.xlsx)"
+                  >
+                    <Download className="w-3.5 h-3.5 text-amber-400" />
+                    Sample Excel (.xlsx)
+                  </button>
+                  <button
+                    onClick={handleDownloadCSVTemplate}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition-colors"
+                    title="Download CSV Template (.csv)"
+                  >
+                    <Download className="w-3.5 h-3.5 text-emerald-400" />
+                    Sample CSV (.csv)
+                  </button>
+                </div>
 
                 <button
                   onClick={handleBulkUploadSubmit}
