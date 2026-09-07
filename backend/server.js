@@ -12,6 +12,7 @@ import executeRoutes from './routes/executeRoutes.js';
 import submissionRoutes from './routes/submissionRoutes.js';
 import adminUserRoutes from './routes/adminUserRoutes.js';
 import { seedDatabase } from './utils/seedData.js';
+import { initKeepAlive } from './utils/keepAlive.js';
 
 dotenv.config();
 
@@ -38,7 +39,7 @@ app.use('/api/execute', executeRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/admin/users', adminUserRoutes);
 
-// Health check endpoint
+// Health check endpoint (Used by Render Keep-Alive)
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -78,4 +79,6 @@ mongoose.connect(MONGO_URI)
 
 app.listen(PORT, () => {
   console.log(`🚀 SonuTechHub Server running on http://localhost:${PORT}`);
+  // Initialize Render Keep-Alive self-pinger
+  initKeepAlive();
 });
