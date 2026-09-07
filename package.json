@@ -1,0 +1,27 @@
+{
+  "name": "sonutechhub",
+  "version": "1.0.0",
+  "description": "SonuTechHub - MERN Stack Java DSA Practice Platform with Integrated Java Compiler & Admin Bulk Upload",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm run dev",
+    "start": "cd backend && node server.js",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "sonutechhub",
+    "java",
+    "dsa",
+    "mern",
+    "compiler",
+    "practice",
+    "excel-upload",
+    "monaco-editor"
+  ],
+  "author": "SonuTechHub",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
