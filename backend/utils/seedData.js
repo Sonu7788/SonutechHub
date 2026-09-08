@@ -23,26 +23,79 @@ export async function seedDatabase() {
       console.log('Created Admin (admin@javadsa.com / admin123) and Student (student@javadsa.com / student123)');
     }
 
-    // 2. Clean/Sanitize any existing question starter codes in MongoDB
-    // (Removes any pre-filled solution logic from older seedings)
-    await Question.updateMany(
-      {
-        $or: [
-          { starterCode: { $regex: /complement|map\.containsKey|StringBuilder|valid = true|isPal|mid = left \+ \(right/ } },
-          { title: 'Two Sum Problem' },
-          { title: 'Valid Palindrome Checker' },
-          { title: 'Binary Search Implementation' },
-          { title: 'Valid Parentheses' },
-          { title: 'Climbing Stairs' }
-        ]
-      },
+    // 2. Clean/Sanitize any existing question starter codes in MongoDB to function-based format
+    await Question.updateOne(
+      { title: 'Two Sum Problem' },
       {
         $set: {
           starterCode: `import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        // Write your solution here
+        
+    }
+}`
+        }
+      }
+    );
+
+    await Question.updateOne(
+      { title: 'Valid Palindrome Checker' },
+      {
+        $set: {
+          starterCode: `import java.util.*;
+
+class Solution {
+    public boolean isPalindrome(String s) {
+        // Write your solution here
+        
+    }
+}`
+        }
+      }
+    );
+
+    await Question.updateOne(
+      { title: 'Binary Search Implementation' },
+      {
+        $set: {
+          starterCode: `import java.util.*;
+
+class Solution {
+    public int search(int[] nums, int target) {
+        // Write your solution here
+        
+    }
+}`
+        }
+      }
+    );
+
+    await Question.updateOne(
+      { title: 'Valid Parentheses' },
+      {
+        $set: {
+          starterCode: `import java.util.*;
+
+class Solution {
+    public boolean isValid(String s) {
+        // Write your solution here
+        
+    }
+}`
+        }
+      }
+    );
+
+    await Question.updateOne(
+      { title: 'Climbing Stairs' },
+      {
+        $set: {
+          starterCode: `import java.util.*;
+
+class Solution {
+    public int climbStairs(int n) {
         // Write your solution here
         
     }
@@ -74,7 +127,7 @@ public class Main {
       const stackCat = createdCategories.find(c => c.slug === 'stack-and-queue');
       const dpCat = createdCategories.find(c => c.slug === 'dynamic-programming');
 
-      console.log('Seeding initial questions with clean templates...');
+      console.log('Seeding initial questions with function-based templates...');
       const questionsData = [
         {
           title: 'Two Sum Problem',
@@ -86,22 +139,14 @@ public class Main {
 
 You may assume that each input would have **exactly one solution**, and you may not use the same element twice.
 
-Print the indices separated by a single space in ascending order.`,
-          inputFormat: `Line 1: Integer N (size of array)\nLine 2: N space-separated integers (nums)\nLine 3: Integer target`,
-          outputFormat: `Two integers separated by space (indices 0-indexed)`,
+Return the indices in any order.`,
+          inputFormat: `nums = [2,7,11,15], target = 9`,
+          outputFormat: `[0,1]`,
           constraints: `2 <= nums.length <= 10^5\n-10^9 <= nums[i] <= 10^9\n-10^9 <= target <= 10^9`,
           starterCode: `import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt();
-        int[] nums = new int[n];
-        for (int i = 0; i < n; i++) {
-            nums[i] = sc.nextInt();
-        }
-        int target = sc.nextInt();
-        
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
         // Write your solution here
         
     }
@@ -109,21 +154,21 @@ public class Main {
           hints: ['Use a HashMap to lookup previously seen numbers in O(1) time.'],
           examples: [
             {
-              input: `4\n2 7 11 15\n9`,
-              output: `0 1`,
-              explanation: `nums[0] + nums[1] == 9, so output is 0 1.`
+              input: `[2,7,11,15]\n9`,
+              output: `[0,1]`,
+              explanation: `nums[0] + nums[1] == 9, so return [0, 1].`
             },
             {
-              input: `3\n3 2 4\n6`,
-              output: `1 2`,
-              explanation: `nums[1] + nums[2] == 6, so output is 1 2.`
+              input: `[3,2,4]\n6`,
+              output: `[1,2]`,
+              explanation: `nums[1] + nums[2] == 6, so return [1, 2].`
             }
           ],
           testCases: [
-            { input: `4\n2 7 11 15\n9`, expectedOutput: `0 1`, isHidden: false },
-            { input: `3\n3 2 4\n6`, expectedOutput: `1 2`, isHidden: false },
-            { input: `2\n3 3\n6`, expectedOutput: `0 1`, isHidden: true },
-            { input: `5\n1 5 9 12 18\n21`, expectedOutput: `2 3`, isHidden: true }
+            { input: `[2,7,11,15]\n9`, expectedOutput: `[0,1]`, isHidden: false },
+            { input: `[3,2,4]\n6`, expectedOutput: `[1,2]`, isHidden: false },
+            { input: `[3,3]\n6`, expectedOutput: `[0,1]`, isHidden: true },
+            { input: `[1,5,9,12,18]\n21`, expectedOutput: `[2,3]`, isHidden: true }
           ]
         },
         {
@@ -134,18 +179,14 @@ public class Main {
           tags: ['String', 'Two Pointers'],
           description: `A phrase is a **palindrome** if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward.
 
-Given a string \`s\`, print \`true\` if it is a palindrome, or \`false\` otherwise.`,
-          inputFormat: `A single line containing the string S`,
-          outputFormat: `Print "true" or "false" (lowercase)`,
+Given a string \`s\`, return \`true\` if it is a palindrome, or \`false\` otherwise.`,
+          inputFormat: `s = "A man, a plan, a canal: Panama"`,
+          outputFormat: `true or false`,
           constraints: `1 <= s.length <= 2 * 10^5\ns consists only of printable ASCII characters.`,
           starterCode: `import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        if (!sc.hasNextLine()) return;
-        String s = sc.nextLine();
-        
+class Solution {
+    public boolean isPalindrome(String s) {
         // Write your solution here
         
     }
@@ -178,37 +219,29 @@ public class Main {
           tags: ['Binary Search', 'Array'],
           description: `Given an array of integers \`nums\` which is sorted in ascending order, and an integer \`target\`, write a function to search \`target\` in \`nums\`.
 
-If \`target\` exists, then print its index. Otherwise, print \`-1\`.
+If \`target\` exists, then return its index. Otherwise, return \`-1\`.
 
 You must write an algorithm with \`O(log n)\` runtime complexity.`,
-          inputFormat: `Line 1: Integer N\nLine 2: N sorted space-separated integers\nLine 3: Integer target`,
-          outputFormat: `Index of target or -1`,
+          inputFormat: `nums = [-1,0,3,5,9,12], target = 9`,
+          outputFormat: `4`,
           constraints: `1 <= nums.length <= 10^5\n-10^4 <= nums[i], target <= 10^4\nAll the integers in nums are unique.`,
           starterCode: `import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt();
-        int[] nums = new int[n];
-        for (int i = 0; i < n; i++) {
-            nums[i] = sc.nextInt();
-        }
-        int target = sc.nextInt();
-        
-        // Write your binary search solution here
+class Solution {
+    public int search(int[] nums, int target) {
+        // Write your solution here
         
     }
 }`,
           hints: ['Calculate mid = left + (right - left) / 2 to prevent integer overflow.'],
           examples: [
-            { input: `6\n-1 0 3 5 9 12\n9`, output: `4`, explanation: `9 exists in nums and its index is 4.` },
-            { input: `6\n-1 0 3 5 9 12\n2`, output: `-1`, explanation: `2 does not exist in nums so return -1.` }
+            { input: `[-1,0,3,5,9,12]\n9`, output: `4`, explanation: `9 exists in nums and its index is 4.` },
+            { input: `[-1,0,3,5,9,12]\n2`, output: `-1`, explanation: `2 does not exist in nums so return -1.` }
           ],
           testCases: [
-            { input: `6\n-1 0 3 5 9 12\n9`, expectedOutput: `4`, isHidden: false },
-            { input: `6\n-1 0 3 5 9 12\n2`, expectedOutput: `-1`, isHidden: false },
-            { input: `1\n5\n5`, expectedOutput: `0`, isHidden: true }
+            { input: `[-1,0,3,5,9,12]\n9`, expectedOutput: `4`, isHidden: false },
+            { input: `[-1,0,3,5,9,12]\n2`, expectedOutput: `-1`, isHidden: false },
+            { input: `[5]\n5`, expectedOutput: `0`, isHidden: true }
           ]
         },
         {
@@ -219,19 +252,15 @@ public class Main {
           tags: ['Stack', 'String'],
           description: `Given a string \`s\` containing just the characters \`'('\`, \`')'\`, \`'{'\`, \`'}'\`, \`'['\` and \`']'\`, determine if the input string is valid.
 
-Print \`true\` or \`false\`.`,
-          inputFormat: `Single line containing string s`,
+Return \`true\` or \`false\`.`,
+          inputFormat: `s = "()[]{}"`,
           outputFormat: `true or false`,
           constraints: `1 <= s.length <= 10^4\ns consists of parentheses only '()[]{}'.`,
           starterCode: `import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        if (!sc.hasNext()) return;
-        String s = sc.next();
-        
-        // Write your stack solution here
+class Solution {
+    public boolean isValid(String s) {
+        // Write your solution here
         
     }
 }`,
@@ -257,17 +286,14 @@ public class Main {
           description: `You are climbing a staircase. It takes \`n\` steps to reach the top.
 
 Each time you can either climb \`1\` or \`2\` steps. In how many distinct ways can you climb to the top?`,
-          inputFormat: `Single integer n`,
-          outputFormat: `Number of distinct ways`,
+          inputFormat: `n = 2`,
+          outputFormat: `2`,
           constraints: `1 <= n <= 45`,
           starterCode: `import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt();
-        
-        // Write your DP solution here
+class Solution {
+    public int climbStairs(int n) {
+        // Write your solution here
         
     }
 }`,

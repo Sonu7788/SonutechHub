@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import confetti from 'canvas-confetti';
@@ -24,7 +24,11 @@ import {
   Check,
   Lock,
   Save,
-  LogIn
+  LogIn,
+  Maximize2,
+  Minimize2,
+  Flame,
+  Settings2
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -47,6 +51,10 @@ export default function ProblemWorkspace() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [hasSavedCode, setHasSavedCode] = useState(false);
+  const [fontSize, setFontSize] = useState(14);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const workspaceRef = useRef(null);
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -62,7 +70,7 @@ export default function ProblemWorkspace() {
             setCode(q.savedCode);
             setHasSavedCode(true);
           } else {
-            setCode(q.starterCode || `import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Write your solution here\n        \n    }\n}`);
+            setCode(q.starterCode || `import java.util.*;\n\nclass Solution {\n    public int solve(int[] nums) {\n        // Write your solution here\n        \n    }\n}`);
             setHasSavedCode(false);
           }
           
@@ -85,6 +93,22 @@ export default function ProblemWorkspace() {
       loadSubmissions();
     }
   }, [isAuthenticated, question?._id]);
+
+  // Global Keyboard Shortcuts (Ctrl+Enter to Run, Ctrl+Shift+Enter to Submit)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleSubmitCode();
+        } else {
+          handleRunCode();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [code, question, isAuthenticated]);
 
   const loadSubmissions = async () => {
     try {
@@ -205,7 +229,7 @@ export default function ProblemWorkspace() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col bg-[#0b0f19]">
+    <div ref={workspaceRef} className={`flex flex-col bg-[#0b0f19] ${isFullscreen ? 'fixed inset-0 z-50 h-screen w-screen' : 'h-[calc(100vh-4rem)]'}`}>
       <SEO
         title={`${question.title} (${question.difficulty})`}
         description={`Solve ${question.title} in Java on SonuTechHub. Category: ${question.category?.name || 'DSA'}. Test against sample and hidden test cases with OpenJDK 24 compiler.`}
@@ -265,6 +289,14 @@ export default function ProblemWorkspace() {
           >
             <RotateCcw className="w-3.5 h-3.5" />
             Reset Boilerplate
+          </button>
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors flex items-center gap-1 text-[11px]"
+            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          >
+            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5 text-emerald-400" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            <span className="hidden md:inline">{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
           </button>
         </div>
       </div>
@@ -472,12 +504,30 @@ export default function ProblemWorkspace() {
             <div className="flex items-center gap-2">
               <Code2 className="w-4 h-4 text-emerald-400" />
               <span className="font-semibold text-white">Java (OpenJDK 24)</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">
-                Main.java
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-medium border border-emerald-500/30">
+                {code.includes('class Solution') ? 'Solution.java' : 'Main.java'}
               </span>
             </div>
-            <div className="text-[11px] text-gray-400">
-              Standard I/O: <code className="text-gray-300 font-mono">Scanner sc = new Scanner(System.in)</code>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
+                <Settings2 className="w-3.5 h-3.5 text-gray-400" />
+                <select
+                  value={fontSize}
+                  onChange={(e) => setFontSize(Number(e.target.value))}
+                  className="bg-gray-800 border border-gray-700 text-gray-300 text-[11px] rounded px-1.5 py-0.5 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                  title="Editor Font Size"
+                >
+                  <option value={12}>12px</option>
+                  <option value={13}>13px</option>
+                  <option value={14}>14px</option>
+                  <option value={15}>15px</option>
+                  <option value={16}>16px</option>
+                  <option value={18}>18px</option>
+                </select>
+              </div>
+              <span className="hidden xl:inline-flex items-center text-[10px] text-gray-400 bg-gray-800/80 px-2 py-0.5 rounded border border-gray-700">
+                ⚡ Ctrl+Enter: Run | Ctrl+Shift+Enter: Submit
+              </span>
             </div>
           </div>
 
@@ -495,7 +545,7 @@ export default function ProblemWorkspace() {
               }}
               options={{
                 minimap: { enabled: false },
-                fontSize: 13,
+                fontSize: fontSize,
                 fontFamily: 'Fira Code, JetBrains Mono, monospace',
                 lineNumbers: 'on',
                 scrollBeyondLastLine: false,
