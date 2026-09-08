@@ -1,37 +1,22 @@
 Title,Category,Difficulty,Tags,Description,Input Format,Output Format,Constraints,Starter Code,Hints,Example 1 Input,Example 1 Output,Example 1 Explanation,Example 2 Input,Example 2 Output,Example 2 Explanation,Test Case 1 Input,Test Case 1 Output,Test Case 1 IsHidden,Test Case 2 Input,Test Case 2 Output,Test Case 2 IsHidden,Test Case 3 Input,Test Case 3 Output,Test Case 3 IsHidden
-"Two Sum","Arrays","Easy","Array, Hash Table","Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. Print indices separated by space.","Line 1: N, Line 2: array elements, Line 3: target","Two space-separated integers","2 <= nums.length <= 10^5","import java.util.*;
+"Two Sum","Arrays","Easy","Array, Hash Table","Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice.","[nums] on line 1, target on line 2 (or N on line 1, array elements on line 2, target on line 3)","[index1, index2]","2 <= nums.length <= 10^5","import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt();
-        int[] nums = new int[n];
-        for(int i = 0; i < n; i++) nums[i] = sc.nextInt();
-        int target = sc.nextInt();
-        
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
         // Write your solution here
         
     }
-}","Use HashMap for O(N) lookup.","4
-2 7 11 15
-9","0 1","nums[0] + nums[1] == 9 so 0 1","3
-3 2 4
-6","1 2","nums[1] + nums[2] == 6","4
-2 7 11 15
-9","0 1","FALSE","3
-3 2 4
-6","1 2","FALSE","2
-3 3
-6","0 1","TRUE"
-"Reverse a String","Strings","Easy","String, Two Pointers","Write a Java program that reads a string from standard input and prints the reversed string.","Single line string S","Reversed string","1 <= S.length <= 10^5","import java.util.*;
+}","Use HashMap for O(N) lookup.","[2, 7, 11, 15]
+9","[0, 1]","nums[0] + nums[1] == 9 so [0, 1]","[3, 2, 4]
+6","[1, 2]","nums[1] + nums[2] == 6","[2, 7, 11, 15]
+9","[0, 1]","FALSE","[3, 2, 4]
+6","[1, 2]","FALSE","[3, 3]
+6","[0, 1]","TRUE"
+"Valid Parentheses","Stacks","Easy","String, Stack","Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.","Single line string s","true or false","1 <= s.length <= 10^4","import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        if (!sc.hasNextLine()) return;
-        String s = sc.nextLine();
-        
+class Solution {
+    public boolean isValid(String s) {
         // Write your solution here
         
     }
-}","Use two pointers or StringBuilder.","hello","olleh","Reversed is olleh","Java","avaJ","Reversed is avaJ","hello","olleh","FALSE","Java","avaJ","FALSE","SonuTechHub DSA","ASD buHhceTunoS","TRUE"
+}","Use a Stack to push matching closing brackets.","""()""","true","The parentheses are balanced.","""()[]{}""","true","All brackets match correctly.","""()""","true","FALSE","""()[]{}\""","true","FALSE","\"(]\"","false","TRUE"

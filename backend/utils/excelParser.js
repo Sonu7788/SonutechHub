@@ -11,53 +11,53 @@ export function generateSampleExcelBuffer() {
       "Category": "Arrays",
       "Difficulty": "Easy",
       "Tags": "Array, Hash Table",
-      "Description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nInput:\nFirst line contains integer N (size of array)\nSecond line contains N integers\nThird line contains integer target",
-      "Input Format": "N on line 1, array elements on line 2, target on line 3",
-      "Output Format": "Two indices separated by space",
+      "Description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice. Return the answer as an integer array of two indices.",
+      "Input Format": "[nums] on line 1, target on line 2 (or N on line 1, array elements on line 2, target on line 3)",
+      "Output Format": "[index1, index2]",
       "Constraints": "2 <= nums.length <= 10^4\n-10^9 <= nums[i] <= 10^9\n-10^9 <= target <= 10^9",
-      "Starter Code": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        int[] nums = new int[n];\n        for(int i = 0; i < n; i++) nums[i] = sc.nextInt();\n        int target = sc.nextInt();\n        \n        // Write your solution here\n        Map<Integer, Integer> map = new HashMap<>();\n        for(int i = 0; i < n; i++) {\n            int complement = target - nums[i];\n            if(map.containsKey(complement)) {\n                System.out.println(map.get(complement) + \" \" + i);\n                return;\n            }\n            map.put(nums[i], i);\n        }\n    }\n}",
-      "Hints": "Use a HashMap to store the numbers you have seen so far for O(N) time complexity.",
-      "Example 1 Input": "4\n2 7 11 15\n9",
-      "Example 1 Output": "0 1",
-      "Example 1 Explanation": "nums[0] + nums[1] == 9, we return 0 1.",
-      "Example 2 Input": "3\n3 2 4\n6",
-      "Example 2 Output": "1 2",
-      "Example 2 Explanation": "nums[1] + nums[2] == 6, we return 1 2.",
-      "Test Case 1 Input": "4\n2 7 11 15\n9",
-      "Test Case 1 Output": "0 1",
+      "Starter Code": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your solution here\n        Map<Integer, Integer> map = new HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            int complement = target - nums[i];\n            if (map.containsKey(complement)) {\n                return new int[] { map.get(complement), i };\n            }\n            map.put(nums[i], i);\n        }\n        return new int[]{};\n    }\n}",
+      "Hints": "Use a HashMap to store values and their indices for O(N) lookup.",
+      "Example 1 Input": "[2, 7, 11, 15]\n9",
+      "Example 1 Output": "[0, 1]",
+      "Example 1 Explanation": "Because nums[0] + nums[1] == 9, we return [0, 1].",
+      "Example 2 Input": "[3, 2, 4]\n6",
+      "Example 2 Output": "[1, 2]",
+      "Example 2 Explanation": "Because nums[1] + nums[2] == 6, we return [1, 2].",
+      "Test Case 1 Input": "[2, 7, 11, 15]\n9",
+      "Test Case 1 Output": "[0, 1]",
       "Test Case 1 IsHidden": "FALSE",
-      "Test Case 2 Input": "3\n3 2 4\n6",
-      "Test Case 2 Output": "1 2",
+      "Test Case 2 Input": "[3, 2, 4]\n6",
+      "Test Case 2 Output": "[1, 2]",
       "Test Case 2 IsHidden": "FALSE",
-      "Test Case 3 Input": "2\n3 3\n6",
-      "Test Case 3 Output": "0 1",
+      "Test Case 3 Input": "[3, 3]\n6",
+      "Test Case 3 Output": "[0, 1]",
       "Test Case 3 IsHidden": "TRUE"
     },
     {
-      "Title": "Reverse a String",
-      "Category": "Strings",
+      "Title": "Valid Parentheses",
+      "Category": "Stacks",
       "Difficulty": "Easy",
-      "Tags": "String, Two Pointers",
-      "Description": "Write a Java program that takes a string as input and prints the reversed string.",
-      "Input Format": "A single line containing string S",
-      "Output Format": "Reversed string",
-      "Constraints": "1 <= S.length <= 10^5",
-      "Starter Code": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        \n        // Reverse and print\n        StringBuilder sb = new StringBuilder(s);\n        System.out.println(sb.reverse().toString());\n    }\n}",
-      "Hints": "You can use StringBuilder.reverse() or two pointers.",
-      "Example 1 Input": "hello",
-      "Example 1 Output": "olleh",
-      "Example 1 Explanation": "The reverse of hello is olleh.",
-      "Example 2 Input": "Java",
-      "Example 2 Output": "avaJ",
-      "Example 2 Explanation": "The reverse of Java is avaJ.",
-      "Test Case 1 Input": "hello",
-      "Test Case 1 Output": "olleh",
+      "Tags": "String, Stack",
+      "Description": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.\n\nAn input string is valid if open brackets are closed by the same type of brackets and in the correct order.",
+      "Input Format": "A single string s",
+      "Output Format": "true or false",
+      "Constraints": "1 <= s.length <= 10^4",
+      "Starter Code": "import java.util.*;\n\nclass Solution {\n    public boolean isValid(String s) {\n        // Write your solution here\n        Stack<Character> stack = new Stack<>();\n        for (char c : s.toCharArray()) {\n            if (c == '(') stack.push(')');\n            else if (c == '{') stack.push('}');\n            else if (c == '[') stack.push(']');\n            else if (stack.isEmpty() || stack.pop() != c) return false;\n        }\n        return stack.isEmpty();\n    }\n}",
+      "Hints": "Use a Stack to push expected closing brackets when an opening bracket is encountered.",
+      "Example 1 Input": "\"()\"",
+      "Example 1 Output": "true",
+      "Example 1 Explanation": "The brackets open and close properly.",
+      "Example 2 Input": "\"()[]{}\"",
+      "Example 2 Output": "true",
+      "Example 2 Explanation": "All bracket types are closed in correct order.",
+      "Test Case 1 Input": "\"()\"",
+      "Test Case 1 Output": "true",
       "Test Case 1 IsHidden": "FALSE",
-      "Test Case 2 Input": "Java",
-      "Test Case 2 Output": "avaJ",
+      "Test Case 2 Input": "\"()[]{}\"",
+      "Test Case 2 Output": "true",
       "Test Case 2 IsHidden": "FALSE",
-      "Test Case 3 Input": "DSA Practice Platform",
-      "Test Case 3 Output": "mroftalP ecitcarP ASD",
+      "Test Case 3 Input": "\"(]\"",
+      "Test Case 3 Output": "false",
       "Test Case 3 IsHidden": "TRUE"
     }
   ];
@@ -164,11 +164,10 @@ export async function parseQuestionsFromBuffer(buffer) {
     if (!starterCode.trim()) {
       starterCode = `import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        // Your code here
-        
+class Solution {
+    public int solve(int[] nums) {
+        // Write your solution here
+        return 0;
     }
 }`;
     }
