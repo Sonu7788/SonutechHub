@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Code2, LogIn, ShieldAlert, User, Sparkles } from 'lucide-react';
+import { Code2, LogIn, User } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -25,21 +25,6 @@ export default function Login() {
       }
     } catch (err) {
       setError(err.message || 'Login failed. Check your credentials.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDemoAdmin = async () => {
-    setEmail('admin@javadsa.com');
-    setPassword('admin123');
-    setLoading(true);
-    setError('');
-    try {
-      await login('admin@javadsa.com', 'admin123');
-      navigate('/admin');
-    } catch (err) {
-      setError('Admin demo login failed');
     } finally {
       setLoading(false);
     }
@@ -117,29 +102,19 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Quick Demo Access Buttons */}
+          {/* Quick Demo Access Button */}
           <div className="pt-4 border-t border-gray-800 space-y-3">
             <div className="text-[11px] text-gray-400 font-medium text-center uppercase tracking-wider">
               Quick 1-Click Demo Login
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={handleDemoAdmin}
-                className="p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <ShieldAlert className="w-3.5 h-3.5" />
-                Demo Admin
-              </button>
-              <button
-                type="button"
-                onClick={handleDemoStudent}
-                className="p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <User className="w-3.5 h-3.5" />
-                Demo Student
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleDemoStudent}
+              className="w-full p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+            >
+              <User className="w-4 h-4" />
+              Demo Student Login
+            </button>
           </div>
         </div>
 
