@@ -9,6 +9,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Leaderboard from './pages/Leaderboard';
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/practice" element={<CategoryPractice />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/problem/:idOrSlug" element={<ProblemWorkspace />} />
           <Route
             path="/admin"

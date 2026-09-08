@@ -12,7 +12,8 @@ import {
   Layers, 
   ChevronDown,
   BookOpen,
-  Trophy
+  Trophy,
+  Flame
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -31,7 +32,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           
           {/* Brand Logo */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-6">
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
                 <Code2 className="w-6 h-6 text-white" />
@@ -40,7 +41,7 @@ export default function Navbar() {
                 <span className="font-bold text-lg text-white tracking-tight flex items-center gap-1.5">
                   SonuTech<span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Hub</span>
                   <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    Java DSA
+                    Free DSA
                   </span>
                 </span>
                 <span className="text-[10px] text-gray-400 -mt-1 font-mono">Code • Practice • Excel</span>
@@ -50,10 +51,17 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-1">
               <Link
                 to="/practice"
-                className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/60 transition-colors flex items-center gap-2"
+                className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/60 transition-colors flex items-center gap-1.5"
               >
                 <Layers className="w-4 h-4 text-emerald-400" />
-                Category Practice
+                Practice Track
+              </Link>
+              <Link
+                to="/leaderboard"
+                className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/60 transition-colors flex items-center gap-1.5"
+              >
+                <Trophy className="w-4 h-4 text-amber-400" />
+                Leaderboard
               </Link>
               <Link
                 to="/practice?difficulty=Easy"
@@ -66,13 +74,20 @@ export default function Navbar() {
 
           {/* Right Action buttons */}
           <div className="flex items-center space-x-3">
+            {isAuthenticated && (
+              <div className="hidden sm:flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400">
+                <Flame className="w-4 h-4 fill-orange-400" />
+                <span>{user?.dailyStreak || 1} {user?.dailyStreak === 1 ? 'day' : 'days'} streak</span>
+              </div>
+            )}
+
             {isAdmin && (
               <Link
                 to="/admin"
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-colors"
               >
                 <ShieldAlert className="w-3.5 h-3.5" />
-                Admin Dashboard
+                Admin
               </Link>
             )}
 
@@ -97,9 +112,15 @@ export default function Navbar() {
                     <div className="px-4 py-2 border-b border-gray-700/70">
                       <p className="text-xs text-gray-400">Signed in as</p>
                       <p className="text-sm font-semibold text-white truncate">{user?.email}</p>
-                      <div className="mt-1 flex items-center gap-1.5 text-xs text-emerald-400">
-                        <Trophy className="w-3 h-3" />
-                        <span>{user?.solvedQuestions?.length || 0} Problems Solved</span>
+                      <div className="mt-1 flex items-center justify-between text-xs">
+                        <span className="text-emerald-400 flex items-center gap-1">
+                          <Trophy className="w-3 h-3" />
+                          {user?.solvedQuestions?.length || 0} Solved
+                        </span>
+                        <span className="text-orange-400 flex items-center gap-1 font-semibold">
+                          <Flame className="w-3 h-3 fill-orange-400" />
+                          {user?.dailyStreak || 1}d Streak
+                        </span>
                       </div>
                     </div>
 
@@ -111,13 +132,21 @@ export default function Navbar() {
                       My Profile & Stats
                     </Link>
 
+                    <Link
+                      to="/leaderboard"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                    >
+                      <Trophy className="w-4 h-4 text-amber-400" />
+                      Global Leaderboard
+                    </Link>
+
                     {isAdmin && (
                       <Link
                         to="/admin"
                         className="flex items-center gap-2 px-4 py-2 text-sm text-amber-300 hover:bg-amber-500/10"
                       >
                         <ShieldAlert className="w-4 h-4" />
-                        Admin Question & User Manager
+                        Admin Manager
                       </Link>
                     )}
 

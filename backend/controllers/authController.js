@@ -1,6 +1,46 @@
 import User from '../models/User.js';
 import { generateToken } from '../middleware/auth.js';
 
+// Helper to calculate & update daily login streak
+export function updateDailyStreak(user) {
+  const now = new Date();
+  if (!user.lastLoginDate) {
+    user.dailyStreak = 1;
+    user.maxStreak = 1;
+    user.lastLoginDate = now;
+    return;
+  }
+
+  const lastLogin = new Date(user.lastLoginDate);
+  const isSameDay = (
+    now.getFullYear() === lastLogin.getFullYear() &&
+    now.getMonth() === lastLogin.getMonth() &&
+    now.getDate() === lastLogin.getDate()
+  );
+
+  if (isSameDay) {
+    return; // Already recorded login for today
+  }
+
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const lastMidnight = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate()).getTime();
+  const diffDays = Math.round((nowMidnight - lastMidnight) / oneDayMs);
+
+  if (diffDays === 1) {
+    // Consecutive day login streak
+    user.dailyStreak = (user.dailyStreak || 0) + 1;
+    if (user.dailyStreak > (user.maxStreak || 0)) {
+      user.maxStreak = user.dailyStreak;
+    }
+  } else if (diffDays > 1) {
+    // Streak broken, restart at 1
+    user.dailyStreak = 1;
+  }
+
+  user.lastLoginDate = now;
+}
+
 // @route POST /api/auth/register
 export const register = async (req, res) => {
   try {
@@ -19,7 +59,10 @@ export const register = async (req, res) => {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
-      role: 'user'
+      role: 'user',
+      dailyStreak: 1,
+      maxStreak: 1,
+      lastLoginDate: new Date()
     });
 
     const token = generateToken(user._id);
@@ -33,6 +76,8 @@ export const register = async (req, res) => {
         email: user.email,
         role: user.role,
         isBlocked: user.isBlocked,
+        dailyStreak: user.dailyStreak,
+        maxStreak: user.maxStreak,
         solvedQuestions: user.solvedQuestions
       }
     });
@@ -68,6 +113,10 @@ export const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
+    // Update login streak
+    updateDailyStreak(user);
+    await user.save();
+
     const token = generateToken(user._id);
 
     res.json({
@@ -79,6 +128,8 @@ export const login = async (req, res) => {
         email: user.email,
         role: user.role,
         isBlocked: user.isBlocked,
+        dailyStreak: user.dailyStreak,
+        maxStreak: user.maxStreak,
         solvedQuestions: user.solvedQuestions
       }
     });
@@ -94,6 +145,11 @@ export const getMe = async (req, res) => {
       .select('-password')
       .populate('solvedQuestions', 'title difficulty category');
       
+    if (user) {
+      updateDailyStreak(user);
+      await user.save();
+    }
+
     res.json({
       success: true,
       user

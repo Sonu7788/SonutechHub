@@ -57,6 +57,22 @@ const userSchema = new mongoose.Schema({
     ref: 'Question'
   }],
   savedCodes: [savedCodeSchema],
+  dailyStreak: {
+    type: Number,
+    default: 1
+  },
+  maxStreak: {
+    type: Number,
+    default: 1
+  },
+  lastLoginDate: {
+    type: Date,
+    default: Date.now
+  },
+  totalScore: {
+    type: Number,
+    default: 0
+  },
   avatar: {
     type: String,
     default: ''

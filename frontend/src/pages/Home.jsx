@@ -50,9 +50,9 @@ export default function Home() {
   return (
     <div className="space-y-16 pb-20">
       <SEO
-        title="Master Java DSA & Coding Practice"
-        description="Master Java Data Structures & Algorithms topic by topic. Practice Arrays, Linked Lists, Trees, Graphs, DP with an interactive Java 24 in-browser compiler."
-        keywords="Java DSA, SonuTechHub, Java Algorithms, Coding Interview Java, DSA Practice Track, Online Java Compiler"
+        title="Free DSA Practice Platform Online - Free Java Compiler & Coding"
+        description="SonuTechHub is the 100% free DSA practice platform online. Master Java Data Structures & Algorithms topic by topic (Arrays, DP, Trees, Graphs) with real-time compilation, test verification, and global leaderboards."
+        keywords="Free DSA Practice Platform Online, Free Java DSA Practice, Online Java Compiler, Java Coding Interview Preparation, Free DSA Practice, Java Data Structures Platform, SonuTechHub Leaderboard"
       />
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
@@ -62,15 +62,16 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse">
-            <Zap className="w-3.5 h-3.5" /> SonuTechHub • High Speed Java 24 Sandbox
+            <Zap className="w-3.5 h-3.5" /> 100% Free DSA Practice Platform Online
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight max-w-4xl mx-auto">
-            Elevate Your Coding with <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">SonuTechHub</span>
+            Master Data Structures & Algorithms <br className="hidden sm:inline" />
+            on <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">SonuTechHub</span>
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Practice curated Data Structures & Algorithms topic by topic. Write, compile, and execute Java code directly in the browser with real-time test case verification.
+            Free interactive Java DSA practice platform. Write, compile, and execute Java code directly in your browser with real-time test case validation, daily login streaks, and global rankings.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -79,14 +80,14 @@ export default function Home() {
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-600/25 transition-all hover:scale-105"
             >
               <Play className="w-4 h-4 fill-white" />
-              Start Practicing Now
+              Start Free Practice Track
             </Link>
             <Link
-              to="/admin"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 transition-all hover:scale-105"
+              to="/leaderboard"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all hover:scale-105"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-              Admin Portal
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              Global Leaderboard
             </Link>
           </div>
 
@@ -94,19 +95,19 @@ export default function Home() {
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
             <div className="p-4 rounded-xl bg-gray-900/60 border border-gray-800 backdrop-blur-sm">
               <div className="text-2xl font-bold text-emerald-400 font-mono">{categories.length || 8}+</div>
-              <div className="text-xs text-gray-400 mt-1">Core DSA Topics</div>
+              <div className="text-xs text-gray-400 mt-1">Core DSA Tracks</div>
             </div>
             <div className="p-4 rounded-xl bg-gray-900/60 border border-gray-800 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-teal-400 font-mono">100%</div>
-              <div className="text-xs text-gray-400 mt-1">Java Native Runner</div>
+              <div className="text-2xl font-bold text-teal-400 font-mono">100% Free</div>
+              <div className="text-xs text-gray-400 mt-1">No Paywall Ever</div>
             </div>
             <div className="p-4 rounded-xl bg-gray-900/60 border border-gray-800 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-blue-400 font-mono">&lt; 500ms</div>
-              <div className="text-xs text-gray-400 mt-1">Execution Speed</div>
+              <div className="text-2xl font-bold text-cyan-400 font-mono">Java 24</div>
+              <div className="text-xs text-gray-400 mt-1">Native Compiler</div>
             </div>
             <div className="p-4 rounded-xl bg-gray-900/60 border border-gray-800 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-purple-400 font-mono">Excel/CSV</div>
-              <div className="text-xs text-gray-400 mt-1">Bulk Question Import</div>
+              <div className="text-2xl font-bold text-amber-400 font-mono">Global</div>
+              <div className="text-xs text-gray-400 mt-1">Daily Streak Ranks</div>
             </div>
           </div>
         </div>

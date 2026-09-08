@@ -11,6 +11,7 @@ import questionRoutes from './routes/questionRoutes.js';
 import executeRoutes from './routes/executeRoutes.js';
 import submissionRoutes from './routes/submissionRoutes.js';
 import adminUserRoutes from './routes/adminUserRoutes.js';
+import leaderboardRoutes from './routes/leaderboardRoutes.js';
 import Question from './models/Question.js';
 import Category from './models/Category.js';
 import { seedDatabase } from './utils/seedData.js';
@@ -40,6 +41,7 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/execute', executeRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/admin/users', adminUserRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 // Health check endpoint (Used by Render Keep-Alive)
 app.get('/api/health', (req, res) => {
@@ -67,6 +69,7 @@ app.get('/sitemap.xml', async (req, res) => {
     // Static pages
     xml += `  <url><loc>${baseUrl}/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>\n`;
     xml += `  <url><loc>${baseUrl}/practice</loc><priority>0.9</priority><changefreq>daily</changefreq></url>\n`;
+    xml += `  <url><loc>${baseUrl}/leaderboard</loc><priority>0.9</priority><changefreq>daily</changefreq></url>\n`;
     xml += `  <url><loc>${baseUrl}/login</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>\n`;
     xml += `  <url><loc>${baseUrl}/register</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>\n`;
 
@@ -94,7 +97,7 @@ app.get('/sitemap.xml', async (req, res) => {
 app.get('/robots.txt', (req, res) => {
   const baseUrl = process.env.RENDER_EXTERNAL_URL || process.env.SERVER_URL || 'https://sonutechhub.onrender.com';
   res.type('text/plain');
-  res.send(`User-agent: *\nAllow: /\nAllow: /practice\nAllow: /problem/\nDisallow: /admin\nDisallow: /api/\nDisallow: /profile\n\nSitemap: ${baseUrl}/sitemap.xml\n`);
+  res.send(`User-agent: *\nAllow: /\nAllow: /practice\nAllow: /leaderboard\nAllow: /problem/\nDisallow: /admin\nDisallow: /api/\nDisallow: /profile\n\nSitemap: ${baseUrl}/sitemap.xml\n`);
 });
 
 // In Production: Serve frontend static build files

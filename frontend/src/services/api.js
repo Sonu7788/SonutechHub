@@ -79,4 +79,10 @@ export const adminUserAPI = {
   delete: (id) => api.delete(`/admin/users/${id}`),
 };
 
+// Global Leaderboard
+export const leaderboardAPI = {
+  getLeaderboard: (params) => api.get('/leaderboard', { params }),
+};
+
 export default api;
+
