@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { submissionAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import DifficultyBadge from '../components/DifficultyBadge';
+import Pagination from '../components/Pagination';
 import { 
   User, 
   Trophy, 
@@ -25,6 +26,8 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [expandedSubId, setExpandedSubId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [subPage, setSubPage] = useState(1);
+  const subPageSize = 8;
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -148,78 +151,93 @@ export default function Profile() {
         {stats?.recentSubmissions?.length === 0 ? (
           <p className="text-xs text-gray-400">No submissions recorded yet. Pick a problem from the practice track and submit your Java solution!</p>
         ) : (
-          <div className="divide-y divide-gray-800">
-            {stats?.recentSubmissions?.map((sub) => {
-              const isExpanded = expandedSubId === sub._id;
-              return (
-                <div key={sub._id} className="py-4 space-y-3 text-xs">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {sub.status === 'Accepted' ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                      )}
-                      <div>
-                        <Link
-                          to={`/problem/${sub.question?._id}`}
-                          className="font-semibold text-white hover:text-emerald-400 transition-colors text-sm"
-                        >
-                          {sub.question?.title}
-                        </Link>
-                        <div className="text-[10px] text-gray-500 mt-0.5">
-                          {new Date(sub.createdAt).toLocaleString()}
+          <div className="space-y-4">
+            <div className="divide-y divide-gray-800">
+              {stats?.recentSubmissions?.slice((subPage - 1) * subPageSize, subPage * subPageSize).map((sub) => {
+                const isExpanded = expandedSubId === sub._id;
+                return (
+                  <div key={sub._id} className="py-4 space-y-3 text-xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {sub.status === 'Accepted' ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                        )}
+                        <div>
+                          <Link
+                            to={`/problem/${sub.question?._id}`}
+                            className="font-semibold text-white hover:text-emerald-400 transition-colors text-sm"
+                          >
+                            {sub.question?.title}
+                          </Link>
+                          <div className="text-[10px] text-gray-500 mt-0.5">
+                            {new Date(sub.createdAt).toLocaleString()}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-3">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                        sub.status === 'Accepted' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
-                      }`}>
-                        {sub.status}
-                      </span>
-                      <span className="font-mono text-gray-400">{sub.executionTimeMs} ms</span>
-                      
-                      <button
-                        onClick={() => setExpandedSubId(isExpanded ? null : sub._id)}
-                        className="px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors flex items-center gap-1 text-[11px]"
-                      >
-                        {isExpanded ? 'Hide Code' : 'View Code'}
-                        {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Expanded Submitted Code Box */}
-                  {isExpanded && (
-                    <div className="p-4 rounded-2xl bg-black/80 border border-gray-800 space-y-2">
-                      <div className="flex items-center justify-between text-[11px] text-gray-400">
-                        <span className="font-mono">Submitted Java Solution:</span>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                          sub.status === 'Accepted' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+                        }`}>
+                          {sub.status}
+                        </span>
+                        <span className="font-mono text-gray-400">{sub.executionTimeMs} ms</span>
+                        
                         <button
-                          onClick={() => handleCopyCode(sub._id, sub.code)}
-                          className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300"
+                          onClick={() => setExpandedSubId(isExpanded ? null : sub._id)}
+                          className="px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors flex items-center gap-1 text-[11px]"
                         >
-                          {copiedId === sub._id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                          {copiedId === sub._id ? 'Copied' : 'Copy'}
+                          {isExpanded ? 'Hide Code' : 'View Code'}
+                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                         </button>
                       </div>
-                      <pre className="p-3 rounded-xl bg-gray-950 font-mono text-xs text-emerald-300 overflow-x-auto border border-gray-800/80 whitespace-pre-wrap max-h-72">
-                        {sub.code}
-                      </pre>
-                      <div className="text-right">
-                        <Link
-                          to={`/problem/${sub.question?._id}`}
-                          className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"
-                        >
-                          Open in Workspace <ArrowRight className="w-3 h-3" />
-                        </Link>
-                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+
+                    {/* Expanded Submitted Code Box */}
+                    {isExpanded && (
+                      <div className="p-4 rounded-2xl bg-black/80 border border-gray-800 space-y-2">
+                        <div className="flex items-center justify-between text-[11px] text-gray-400">
+                          <span className="font-mono">Submitted Java Solution:</span>
+                          <button
+                            onClick={() => handleCopyCode(sub._id, sub.code)}
+                            className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300"
+                          >
+                            {copiedId === sub._id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                            {copiedId === sub._id ? 'Copied' : 'Copy'}
+                          </button>
+                        </div>
+                        <pre className="p-3 rounded-xl bg-gray-950 font-mono text-xs text-emerald-300 overflow-x-auto border border-gray-800/80 whitespace-pre-wrap max-h-72">
+                          {sub.code}
+                        </pre>
+                        <div className="text-right">
+                          <Link
+                            to={`/problem/${sub.question?._id}`}
+                            className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"
+                          >
+                            Open in Workspace <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Footer */}
+            {stats?.recentSubmissions?.length > subPageSize && (
+              <div className="border-t border-gray-800 pt-2">
+                <Pagination
+                  currentPage={subPage}
+                  totalPages={Math.ceil((stats?.recentSubmissions?.length || 0) / subPageSize)}
+                  totalItems={stats?.recentSubmissions?.length || 0}
+                  pageSize={subPageSize}
+                  onPageChange={setSubPage}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

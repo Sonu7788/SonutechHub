@@ -6,6 +6,7 @@ import {
   adminUserAPI
 } from '../services/api';
 import DifficultyBadge from '../components/DifficultyBadge';
+import Pagination from '../components/Pagination';
 import { 
   FileSpreadsheet, 
   Plus, 
@@ -41,6 +42,12 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Pagination states
+  const [qPage, setQPage] = useState(1);
+  const qPageSize = 10;
+  const [uPage, setUPage] = useState(1);
+  const uPageSize = 10;
 
   // Search & Filters
   const [search, setSearch] = useState('');
@@ -386,6 +393,7 @@ export default function AdminDashboard() {
     const matchesCat = !filterCat || (q.category?._id === filterCat || q.category === filterCat);
     return matchesSearch && matchesCat;
   });
+  const pagedQuestions = filteredQuestions.slice((qPage - 1) * qPageSize, qPage * qPageSize);
 
   // Filtered Users
   const filteredUsers = users.filter(u => {
@@ -393,6 +401,7 @@ export default function AdminDashboard() {
     const matchesStatus = userStatusFilter === 'all' || (userStatusFilter === 'blocked' ? u.isBlocked : !u.isBlocked);
     return matchesSearch && matchesStatus;
   });
+  const pagedUsers = filteredUsers.slice((uPage - 1) * uPageSize, uPage * uPageSize);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -511,7 +520,10 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-3 w-full md:w-auto">
               <select
                 value={filterCat}
-                onChange={(e) => setFilterCat(e.target.value)}
+                onChange={(e) => {
+                  setFilterCat(e.target.value);
+                  setQPage(1);
+                }}
                 className="px-3 py-2 rounded-xl bg-gray-800 border border-gray-700 text-xs text-white focus:outline-none focus:border-emerald-500"
               >
                 <option value="">All Categories</option>
@@ -526,7 +538,10 @@ export default function AdminDashboard() {
                   type="text"
                   placeholder="Search questions..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setQPage(1);
+                  }}
                   className="pl-9 pr-4 py-2 rounded-xl bg-gray-800 border border-gray-700 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 w-48 sm:w-60"
                 />
               </div>
@@ -546,7 +561,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800/60">
-                  {filteredQuestions.map((q) => (
+                  {pagedQuestions.map((q) => (
                     <tr key={q._id} className="hover:bg-gray-800/30 transition-colors">
                       <td className="py-4 px-4 font-semibold text-white">
                         {q.title}
@@ -589,6 +604,17 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Footer */}
+            <div className="border-t border-gray-800 px-4 py-2 bg-gray-950/40">
+              <Pagination
+                currentPage={qPage}
+                totalPages={Math.ceil(filteredQuestions.length / qPageSize)}
+                totalItems={filteredQuestions.length}
+                pageSize={qPageSize}
+                onPageChange={setQPage}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -601,7 +627,10 @@ export default function AdminDashboard() {
               <span className="text-xs text-gray-400">Filter Status:</span>
               <select
                 value={userStatusFilter}
-                onChange={(e) => setUserStatusFilter(e.target.value)}
+                onChange={(e) => {
+                  setUserStatusFilter(e.target.value);
+                  setUPage(1);
+                }}
                 className="px-3 py-1.5 rounded-xl bg-gray-800 border border-gray-700 text-xs text-white focus:outline-none focus:border-emerald-500"
               >
                 <option value="all">All Accounts ({users.length})</option>
@@ -616,7 +645,10 @@ export default function AdminDashboard() {
                 type="text"
                 placeholder="Search user name or email..."
                 value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
+                onChange={(e) => {
+                  setUserSearch(e.target.value);
+                  setUPage(1);
+                }}
                 className="w-full pl-9 pr-4 py-2 rounded-xl bg-gray-800 border border-gray-700 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500"
               />
             </div>
@@ -635,7 +667,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800/60">
-                  {filteredUsers.map((u) => (
+                  {pagedUsers.map((u) => (
                     <tr key={u._id} className="hover:bg-gray-800/30 transition-colors">
                       <td className="py-4 px-4">
                         <div className="font-semibold text-white flex items-center gap-2">
@@ -716,6 +748,17 @@ export default function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="border-t border-gray-800 px-4 py-2 bg-gray-950/40">
+              <Pagination
+                currentPage={uPage}
+                totalPages={Math.ceil(filteredUsers.length / uPageSize)}
+                totalItems={filteredUsers.length}
+                pageSize={uPageSize}
+                onPageChange={setUPage}
+              />
             </div>
           </div>
         </div>

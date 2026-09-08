@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { categoryAPI, questionAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import DifficultyBadge from '../components/DifficultyBadge';
+import Pagination from '../components/Pagination';
 import { 
   Search, 
   Filter, 
@@ -28,6 +29,8 @@ export default function CategoryPractice() {
   const currentCategory = searchParams.get('category') || '';
   const currentDifficulty = searchParams.get('difficulty') || 'All';
   const currentSearch = searchParams.get('search') || '';
+  const currentPage = parseInt(searchParams.get('page')) || 1;
+  const pageSize = 12;
 
   const [searchInput, setSearchInput] = useState(currentSearch);
 
@@ -53,7 +56,8 @@ export default function CategoryPractice() {
           category: currentCategory || undefined,
           difficulty: currentDifficulty !== 'All' ? currentDifficulty : undefined,
           search: currentSearch || undefined,
-          limit: 100
+          page: currentPage,
+          limit: pageSize
         };
         const res = await questionAPI.getAll(params);
         if (res.data.success) {
@@ -68,7 +72,7 @@ export default function CategoryPractice() {
     };
 
     fetchQuestions();
-  }, [currentCategory, currentDifficulty, currentSearch]);
+  }, [currentCategory, currentDifficulty, currentSearch, currentPage]);
 
   const handleCategorySelect = (slug) => {
     const newParams = new URLSearchParams(searchParams);
@@ -77,6 +81,7 @@ export default function CategoryPractice() {
     } else {
       newParams.set('category', slug);
     }
+    newParams.delete('page'); // Reset to page 1
     setSearchParams(newParams);
   };
 
@@ -87,6 +92,7 @@ export default function CategoryPractice() {
     } else {
       newParams.set('difficulty', diff);
     }
+    newParams.delete('page'); // Reset to page 1
     setSearchParams(newParams);
   };
 
@@ -98,7 +104,19 @@ export default function CategoryPractice() {
     } else {
       newParams.delete('search');
     }
+    newParams.delete('page'); // Reset to page 1
     setSearchParams(newParams);
+  };
+
+  const handlePageChange = (newPage) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (newPage > 1) {
+      newParams.set('page', newPage);
+    } else {
+      newParams.delete('page');
+    }
+    setSearchParams(newParams);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const isSolved = (questionId) => {
@@ -217,75 +235,88 @@ export default function CategoryPractice() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="text-[11px] text-gray-400 uppercase bg-gray-950/60 border-b border-gray-800/80">
-                <tr>
-                  <th className="py-3.5 px-4 w-12 text-center">Status</th>
-                  <th className="py-3.5 px-4">Title</th>
-                  <th className="py-3.5 px-4">Category</th>
-                  <th className="py-3.5 px-4">Difficulty</th>
-                  <th className="py-3.5 px-4">Tags</th>
-                  <th className="py-3.5 px-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800/60">
-                {questions.map((q, idx) => {
-                  const solved = isSolved(q._id);
-                  return (
-                    <tr
-                      key={q._id}
-                      className="hover:bg-gray-800/30 transition-colors group"
-                    >
-                      <td className="py-4 px-4 text-center">
-                        {solved ? (
-                          <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto inline" />
-                        ) : (
-                          <span className="text-xs font-mono text-gray-600">{idx + 1}</span>
-                        )}
-                      </td>
-                      <td className="py-4 px-4">
-                        <Link
-                          to={`/problem/${q._id}`}
-                          className="font-medium text-white group-hover:text-emerald-400 transition-colors flex items-center gap-2"
-                        >
-                          {q.title}
-                        </Link>
-                      </td>
-                      <td className="py-4 px-4">
-                        <span className="text-xs px-2 py-1 rounded bg-gray-800 text-gray-300 border border-gray-700/60">
-                          {q.category?.name || 'General'}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4">
-                        <DifficultyBadge difficulty={q.difficulty} size="sm" />
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex flex-wrap gap-1">
-                          {(q.tags || []).slice(0, 3).map((tag, i) => (
-                            <span
-                              key={i}
-                              className="text-[10px] px-2 py-0.5 rounded bg-gray-800/80 text-gray-400"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <Link
-                          to={`/problem/${q._id}`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/90 hover:bg-emerald-500 text-white transition-all shadow-md shadow-emerald-600/10"
-                        >
-                          Solve <ChevronRight className="w-3.5 h-3.5" />
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="text-[11px] text-gray-400 uppercase bg-gray-950/60 border-b border-gray-800/80">
+                  <tr>
+                    <th className="py-3.5 px-4 w-12 text-center">Status</th>
+                    <th className="py-3.5 px-4">Title</th>
+                    <th className="py-3.5 px-4">Category</th>
+                    <th className="py-3.5 px-4">Difficulty</th>
+                    <th className="py-3.5 px-4">Tags</th>
+                    <th className="py-3.5 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800/60">
+                  {questions.map((q, idx) => {
+                    const solved = isSolved(q._id);
+                    return (
+                      <tr
+                        key={q._id}
+                        className="hover:bg-gray-800/30 transition-colors group"
+                      >
+                        <td className="py-4 px-4 text-center">
+                          {solved ? (
+                            <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto inline" />
+                          ) : (
+                            <span className="text-xs font-mono text-gray-600">{(currentPage - 1) * pageSize + idx + 1}</span>
+                          )}
+                        </td>
+                        <td className="py-4 px-4">
+                          <Link
+                            to={`/problem/${q._id}`}
+                            className="font-medium text-white group-hover:text-emerald-400 transition-colors flex items-center gap-2"
+                          >
+                            {q.title}
+                          </Link>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="text-xs px-2 py-1 rounded bg-gray-800 text-gray-300 border border-gray-700/60">
+                            {q.category?.name || 'General'}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <DifficultyBadge difficulty={q.difficulty} size="sm" />
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex flex-wrap gap-1">
+                            {(q.tags || []).slice(0, 3).map((tag, i) => (
+                              <span
+                                key={i}
+                                className="text-[10px] px-2 py-0.5 rounded bg-gray-800/80 text-gray-400"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 text-right">
+                          <Link
+                            to={`/problem/${q._id}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/90 hover:bg-emerald-500 text-white transition-all shadow-md shadow-emerald-600/10"
+                          >
+                            Solve <ChevronRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="border-t border-gray-800/80 px-4 py-2">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(total / pageSize)}
+                totalItems={total}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </>
         )}
       </div>
     </div>
