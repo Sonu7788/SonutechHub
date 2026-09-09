@@ -14,7 +14,7 @@ import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
 
 export default function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#0b0f19] text-gray-100">
+    <div className="min-h-screen flex flex-col bg-[#f4f8fc] text-slate-800">
       <Navbar />
       <main className="flex-1">
         <Routes>

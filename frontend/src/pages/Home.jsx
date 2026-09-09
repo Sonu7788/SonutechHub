@@ -9,12 +9,12 @@ import {
   CheckCircle2, 
   Sparkles, 
   ArrowRight, 
-  FileSpreadsheet, 
-  Cpu, 
   Play, 
   Zap, 
-  Compass,
-  FolderCode
+  FolderCode,
+  BookOpen,
+  Trophy,
+  Flame
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -54,60 +54,57 @@ export default function Home() {
         description="SonuTechHub is the 100% free DSA practice platform online. Master Java Data Structures & Algorithms topic by topic (Arrays, DP, Trees, Graphs) with real-time compilation, test verification, and global leaderboards."
         keywords="Free DSA Practice Platform Online, Free Java DSA Practice, Online Java Compiler, Java Coding Interview Preparation, Free DSA Practice, Java Data Structures Platform, SonuTechHub Leaderboard"
       />
+      
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
-        {/* Background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
-        <div className="absolute top-1/4 right-1/4 w-[400px] h-[250px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none -z-10" />
-
+      <section className="relative overflow-hidden pt-10 pb-12 lg:pt-16 lg:pb-16 bg-gradient-to-b from-blue-50/60 via-white to-transparent border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse">
-            <Zap className="w-3.5 h-3.5" /> 100% Free DSA Practice Platform Online
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold tracking-wide mb-6">
+            <Zap className="w-3.5 h-3.5 fill-blue-600 text-blue-600" /> 100% Free DSA Practice Platform Online
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-tight max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-tight max-w-4xl mx-auto">
             Master Data Structures & Algorithms <br className="hidden sm:inline" />
-            on <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">SonuTechHub</span>
+            on <span className="text-blue-600">SonuTechHub</span>
           </h1>
 
-          <p className="mt-6 text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Free interactive Java DSA practice platform. Write, compile, and execute Java code directly in your browser with real-time test case validation, daily login streaks, and global rankings.
+          <p className="mt-5 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
+            Interactive Java DSA practice platform. Write, compile, and execute Java code directly in your browser with real-time test case validation, daily login streaks, and global rankings.
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               to="/practice"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-600/25 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
             >
               <Play className="w-4 h-4 fill-white" />
-              Start Free Practice Track
+              Start Practice Track
             </Link>
             <Link
               to="/leaderboard"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-sm transition-all hover:-translate-y-0.5"
             >
-              <Sparkles className="w-4 h-4 text-amber-400" />
+              <Trophy className="w-4 h-4 text-amber-500" />
               Global Leaderboard
             </Link>
           </div>
 
           {/* Metrics */}
-          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
-            <div className="p-4 rounded-xl bg-gray-900/60 border border-gray-800 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-emerald-400 font-mono">{categories.length || 8}+</div>
-              <div className="text-xs text-gray-400 mt-1">Core DSA Tracks</div>
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div className="text-2xl font-black text-blue-600">{categories.length || 8}+</div>
+              <div className="text-xs text-slate-500 font-medium mt-0.5">Core DSA Tracks</div>
             </div>
-            <div className="p-4 rounded-xl bg-gray-900/60 border border-gray-800 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-teal-400 font-mono">100% Free</div>
-              <div className="text-xs text-gray-400 mt-1">No Paywall Ever</div>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div className="text-2xl font-black text-emerald-600">100% Free</div>
+              <div className="text-xs text-slate-500 font-medium mt-0.5">No Paywall Ever</div>
             </div>
-            <div className="p-4 rounded-xl bg-gray-900/60 border border-gray-800 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-cyan-400 font-mono">Java 24</div>
-              <div className="text-xs text-gray-400 mt-1">Native Compiler</div>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div className="text-2xl font-black text-indigo-600">Java 24</div>
+              <div className="text-xs text-slate-500 font-medium mt-0.5">Native Compiler</div>
             </div>
-            <div className="p-4 rounded-xl bg-gray-900/60 border border-gray-800 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-amber-400 font-mono">Global</div>
-              <div className="text-xs text-gray-400 mt-1">Daily Streak Ranks</div>
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+              <div className="text-2xl font-black text-amber-500">Global</div>
+              <div className="text-xs text-slate-500 font-medium mt-0.5">Daily Streak Ranks</div>
             </div>
           </div>
         </div>
@@ -115,61 +112,61 @@ export default function Home() {
 
       {/* Category Practice Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
-              <Layers className="w-7 h-7 text-emerald-400" />
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
+              <Layers className="w-6 h-6 text-blue-600" />
               DSA Category Tracks
             </h2>
-            <p className="text-sm text-gray-400 mt-1">
-              Select a category to practice curated problems with tailored hints & test suites.
+            <p className="text-sm text-slate-500 mt-1">
+              Select a category to practice curated problems with tailored test suites.
             </p>
           </div>
           <Link
             to="/practice"
-            className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 group"
+            className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 group"
           >
             View All Topics <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-              <div key={i} className="h-40 rounded-2xl bg-gray-800/40 animate-pulse border border-gray-800" />
+              <div key={i} className="h-40 rounded-2xl bg-white animate-pulse border border-slate-200" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {categories.map((category) => {
               const stats = category.questionStats || { total: 0, easy: 0, medium: 0, hard: 0 };
               return (
                 <Link
                   key={category._id}
                   to={`/practice?category=${category.slug}`}
-                  className="glass-card glass-card-hover rounded-2xl p-5 flex flex-col justify-between group"
+                  className="clean-card rounded-2xl p-5 flex flex-col justify-between group hover:border-blue-400 transition-all hover:shadow-md"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center border border-gray-700/60 group-hover:border-emerald-500/50 transition-colors">
-                        <FolderCode className="w-5 h-5 text-emerald-400" />
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100 group-hover:bg-blue-600 transition-colors">
+                        <FolderCode className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
                       </div>
-                      <span className="text-xs font-mono font-medium px-2.5 py-1 rounded-full bg-gray-800/80 text-gray-300 border border-gray-700/50">
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
                         {stats.total} Problems
                       </span>
                     </div>
-                    <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                       {category.name}
                     </h3>
-                    <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
                       {category.description || 'Practice fundamental data structures and algorithmic patterns.'}
                     </p>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-gray-800/80 flex items-center justify-between text-xs font-mono">
-                    <span className="text-emerald-400">{stats.easy} Easy</span>
-                    <span className="text-amber-400">{stats.medium} Med</span>
-                    <span className="text-rose-400">{stats.hard} Hard</span>
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium">
+                    <span className="text-emerald-600">{stats.easy} Easy</span>
+                    <span className="text-amber-600">{stats.medium} Med</span>
+                    <span className="text-rose-600">{stats.hard} Hard</span>
                   </div>
                 </Link>
               );
@@ -180,20 +177,20 @@ export default function Home() {
 
       {/* Featured Questions */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-gray-900/80 to-gray-950/80 border border-gray-800">
+        <div className="clean-card rounded-3xl p-6 sm:p-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-amber-400" />
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-500" />
                 Featured Java Problems
               </h2>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                 Jump into popular coding interview problems asked by top tech firms.
               </p>
             </div>
             <Link
               to="/practice"
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors"
             >
               Solve More
             </Link>
@@ -201,47 +198,47 @@ export default function Home() {
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-xs text-gray-400 uppercase bg-gray-900/50 border-b border-gray-800">
+              <thead className="text-[11px] text-slate-500 uppercase bg-slate-50/80 border-b border-slate-200">
                 <tr>
-                  <th className="py-3.5 px-4">Problem Name</th>
-                  <th className="py-3.5 px-4">Category</th>
-                  <th className="py-3.5 px-4">Difficulty</th>
-                  <th className="py-3.5 px-4">Tags</th>
-                  <th className="py-3.5 px-4 text-right">Action</th>
+                  <th className="py-3 px-4 font-semibold">Problem Name</th>
+                  <th className="py-3 px-4 font-semibold">Category</th>
+                  <th className="py-3 px-4 font-semibold">Difficulty</th>
+                  <th className="py-3 px-4 font-semibold">Tags</th>
+                  <th className="py-3 px-4 text-right font-semibold">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {featuredQuestions.map((q) => (
-                  <tr key={q._id} className="hover:bg-gray-800/30 transition-colors group">
-                    <td className="py-4 px-4 font-medium text-white group-hover:text-emerald-400 transition-colors">
+                  <tr key={q._id} className="hover:bg-blue-50/40 transition-colors group">
+                    <td className="py-3.5 px-4 font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
                       <Link to={`/problem/${q._id}`} className="flex items-center gap-2">
-                        <Code2 className="w-4 h-4 text-gray-500 group-hover:text-emerald-400" />
-                        {q.title}
+                        <Code2 className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
+                        <span className="font-semibold text-xs text-slate-800 group-hover:text-blue-600">{q.title}</span>
                       </Link>
                     </td>
-                    <td className="py-4 px-4 text-gray-300 text-xs">
-                      <span className="px-2 py-1 rounded bg-gray-800 border border-gray-700">
+                    <td className="py-3.5 px-4 text-xs">
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium">
                         {q.category?.name || 'General'}
                       </span>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-3.5 px-4">
                       <DifficultyBadge difficulty={q.difficulty} size="sm" />
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-3.5 px-4">
                       <div className="flex flex-wrap gap-1">
                         {(q.tags || []).slice(0, 2).map((t, idx) => (
-                          <span key={idx} className="text-[11px] px-2 py-0.5 rounded bg-gray-800/60 text-gray-400">
+                          <span key={idx} className="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
                             {t}
                           </span>
                         ))}
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-right">
+                    <td className="py-3.5 px-4 text-right">
                       <Link
                         to={`/problem/${q._id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                       >
-                        Solve <ArrowRight className="w-3.5 h-3.5" />
+                        Solve →
                       </Link>
                     </td>
                   </tr>
@@ -254,3 +251,4 @@ export default function Home() {
     </div>
   );
 }
+

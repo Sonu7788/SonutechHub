@@ -64,10 +64,10 @@ export default function Pagination({
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-2">
       {/* Summary info */}
       {showSummary && totalItems !== undefined && (
-        <div className="text-xs text-gray-400">
-          Showing <span className="font-semibold text-white">{totalItems === 0 ? 0 : startItem}</span> to{' '}
-          <span className="font-semibold text-white">{endItem}</span> of{' '}
-          <span className="font-semibold text-white">{totalItems}</span> items
+        <div className="text-xs text-slate-500">
+          Showing <span className="font-semibold text-slate-900">{totalItems === 0 ? 0 : startItem}</span> to{' '}
+          <span className="font-semibold text-slate-900">{endItem}</span> of{' '}
+          <span className="font-semibold text-slate-900">{totalItems}</span> items
         </div>
       )}
 
@@ -80,7 +80,7 @@ export default function Pagination({
             onClick={() => onPageChange(1)}
             disabled={currentPage <= 1}
             title="First Page"
-            className="p-1.5 rounded-lg border border-gray-800 bg-gray-900/80 text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="p-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xs"
           >
             <ChevronsLeft className="w-4 h-4" />
           </button>
@@ -91,7 +91,7 @@ export default function Pagination({
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage <= 1}
             title="Previous Page"
-            className="p-1.5 rounded-lg border border-gray-800 bg-gray-900/80 text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="p-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xs"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -103,7 +103,7 @@ export default function Pagination({
                 return (
                   <span
                     key={`ellipsis-${idx}`}
-                    className="px-2 py-1 text-xs text-gray-500 font-mono"
+                    className="px-2 py-1 text-xs text-slate-400 font-mono"
                   >
                     ...
                   </span>
@@ -116,10 +116,10 @@ export default function Pagination({
                   key={`page-${page}`}
                   type="button"
                   onClick={() => onPageChange(page)}
-                  className={`min-w-[32px] h-8 px-2 text-xs font-semibold rounded-lg border transition-all ${
+                  className={`min-w-[32px] h-8 px-2 text-xs font-semibold rounded-xl border transition-all ${
                     isActive
-                      ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg shadow-emerald-600/20'
-                      : 'bg-gray-900/80 border-gray-800 text-gray-300 hover:bg-gray-800 hover:text-white'
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-xs'
                   }`}
                 >
                   {page}
@@ -134,7 +134,7 @@ export default function Pagination({
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
             title="Next Page"
-            className="p-1.5 rounded-lg border border-gray-800 bg-gray-900/80 text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="p-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xs"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -145,7 +145,7 @@ export default function Pagination({
             onClick={() => onPageChange(totalPages)}
             disabled={currentPage >= totalPages}
             title="Last Page"
-            className="p-1.5 rounded-lg border border-gray-800 bg-gray-900/80 text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="p-1.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xs"
           >
             <ChevronsRight className="w-4 h-4" />
           </button>

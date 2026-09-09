@@ -4,17 +4,17 @@ export default function DifficultyBadge({ difficulty, size = 'md' }) {
   const getColors = () => {
     switch (difficulty?.toLowerCase()) {
       case 'easy':
-        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'medium':
-        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+        return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'hard':
-        return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+        return 'bg-rose-50 text-rose-700 border-rose-200';
       default:
-        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+        return 'bg-slate-50 text-slate-700 border-slate-200';
     }
   };
 
-  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs font-semibold';
+  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-[11px]' : 'px-3 py-1 text-xs font-semibold';
 
   return (
     <span
@@ -24,3 +24,4 @@ export default function DifficultyBadge({ difficulty, size = 'md' }) {
     </span>
   );
 }
+
