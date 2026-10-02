@@ -6,14 +6,15 @@ import {
   updatePattern,
   deletePattern
 } from '../controllers/patternController.js';
-import { protect, adminOnly } from '../middleware/auth.js';
+import { protect, requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
 router.get('/', getAllPatterns);
 router.get('/:idOrSlug', getPatternByIdOrSlug);
-router.post('/', protect, adminOnly, createPattern);
-router.put('/:id', protect, adminOnly, updatePattern);
-router.delete('/:id', protect, adminOnly, deletePattern);
+router.post('/', protect, requireAdmin, createPattern);
+router.put('/:id', protect, requireAdmin, updatePattern);
+router.delete('/:id', protect, requireAdmin, deletePattern);
 
 export default router;
+

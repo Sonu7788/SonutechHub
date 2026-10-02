@@ -66,8 +66,11 @@ export const requireAdmin = (req, res, next) => {
   next();
 };
 
+export const adminOnly = requireAdmin;
+
 export const generateToken = (userId) => {
   return jwt.sign({ id: userId }, JWT_SECRET, {
     expiresIn: '30d'
   });
 };
+
