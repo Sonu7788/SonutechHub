@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Code2, LogIn, User } from 'lucide-react';
+import { Code2, LogIn, Mail, Lock, User, RefreshCw } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -47,81 +48,102 @@ export default function Login() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <SEO
+        title="Sign In - SonuTechHub Free Java DSA Practice"
+        description="Sign in to your SonuTechHub account to continue solving Java DSA problems and tracking your daily streak."
+      />
+
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
+          <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-500/25">
             <Code2 className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-extrabold text-white">Sign In to SonuTechHub</h2>
-          <p className="text-xs text-gray-400">
-            Access your practice tracks, save submissions, or manage questions.
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+            Sign In to SonuTech<span className="text-blue-600">Hub</span>
+          </h2>
+          <p className="text-xs text-slate-500 max-w-xs mx-auto">
+            Access your practice tracks, saved submissions, and global streak rankings.
           </p>
         </div>
 
         {/* Form Container */}
-        <div className="glass-card rounded-3xl p-8 border border-gray-800 shadow-2xl space-y-6">
+        <div className="clean-card rounded-3xl p-7 sm:p-8 shadow-sm space-y-5">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
-              {error}
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold leading-relaxed flex items-start gap-2">
+              <span className="shrink-0 text-rose-500 font-bold">⚠️</span>
+              <span>{error}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div className="space-y-1">
-              <label className="text-gray-300 font-semibold">Email Address</label>
+              <label className="text-slate-700 font-bold flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-slate-400" /> Email Address
+              </label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 transition-colors shadow-sm"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-gray-300 font-semibold">Password</label>
+              <label className="text-slate-700 font-bold flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-slate-400" /> Password
+              </label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full p-3 rounded-xl bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 transition-colors shadow-sm"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-lg shadow-emerald-600/20 disabled:opacity-50 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-lg shadow-blue-500/20 disabled:opacity-50 transition-all hover:scale-[1.01] flex items-center justify-center gap-2 mt-2"
             >
-              <LogIn className="w-4 h-4" />
-              {loading ? 'Authenticating...' : 'Sign In'}
+              {loading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Authenticating...
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-4 h-4" />
+                  Sign In
+                </>
+              )}
             </button>
           </form>
 
           {/* Quick Demo Access Button */}
-          <div className="pt-4 border-t border-gray-800 space-y-3">
-            <div className="text-[11px] text-gray-400 font-medium text-center uppercase tracking-wider">
+          <div className="pt-4 border-t border-slate-100 space-y-3">
+            <div className="text-[11px] text-slate-400 font-semibold text-center uppercase tracking-wider">
               Quick 1-Click Demo Login
             </div>
             <button
               type="button"
               onClick={handleDemoStudent}
-              className="w-full p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+              className="w-full p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
             >
-              <User className="w-4 h-4" />
+              <User className="w-4 h-4 text-blue-600" />
               Demo Student Login
             </button>
           </div>
         </div>
 
         {/* Footer Link */}
-        <p className="text-center text-xs text-gray-400">
+        <p className="text-center text-xs text-slate-500">
           Don't have an account?{' '}
-          <Link to="/register" className="text-emerald-400 hover:text-emerald-300 font-semibold">
+          <Link to="/register" className="text-blue-600 hover:text-blue-700 font-bold">
             Create an Account
           </Link>
         </p>

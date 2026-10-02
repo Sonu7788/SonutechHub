@@ -38,8 +38,24 @@ export const AuthProvider = ({ children }) => {
     throw new Error(res.data.message || 'Login failed');
   };
 
-  const register = async (name, email, password) => {
-    const res = await authAPI.register({ name, email, password });
+  const sendSignupOtp = async (email, name) => {
+    const res = await authAPI.sendSignupOtp({ email, name });
+    if (res.data.success) {
+      return res.data;
+    }
+    throw new Error(res.data.message || 'Failed to send verification code');
+  };
+
+  const resendOtp = async (email, name) => {
+    const res = await authAPI.resendOtp({ email, name });
+    if (res.data.success) {
+      return res.data;
+    }
+    throw new Error(res.data.message || 'Failed to resend verification code');
+  };
+
+  const register = async (name, email, password, otp) => {
+    const res = await authAPI.register({ name, email, password, otp });
     if (res.data.success) {
       localStorage.setItem('javadsa_token', res.data.token);
       setUser(res.data.user);
@@ -70,6 +86,8 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         login,
+        sendSignupOtp,
+        resendOtp,
         register,
         logout,
         refreshUser,
@@ -83,3 +101,4 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+
