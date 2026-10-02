@@ -53,8 +53,18 @@ export default function ProblemWorkspace() {
   const [hasSavedCode, setHasSavedCode] = useState(false);
   const [fontSize, setFontSize] = useState(14);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
 
   const workspaceRef = useRef(null);
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const interval = setInterval(() => {
+      setCooldown((prev) => (prev > 1 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldown]);
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -149,6 +159,8 @@ export default function ProblemWorkspace() {
       return;
     }
 
+    if (cooldown > 0) return;
+
     setIsRunning(true);
     setConsoleTab('output');
     try {
@@ -160,9 +172,14 @@ export default function ProblemWorkspace() {
       const res = await executeAPI.run(payload);
       setExecutionResult(res.data);
       setHasSavedCode(true);
+      setCooldown(5); // 5s cooldown
     } catch (err) {
+      if (err.response?.status === 429) {
+        const retry = err.response.data?.retryAfter || 5;
+        setCooldown(retry);
+      }
       setExecutionResult({
-        status: 'Runtime Error',
+        status: err.response?.data?.status || 'Runtime Error',
         passed: false,
         errorDetails: err.response?.data?.message || err.message
       });
@@ -178,6 +195,8 @@ export default function ProblemWorkspace() {
       return;
     }
 
+    if (cooldown > 0) return;
+
     setIsSubmitting(true);
     setConsoleTab('output');
     try {
@@ -187,6 +206,7 @@ export default function ProblemWorkspace() {
       });
       setExecutionResult(res.data);
       setHasSavedCode(true);
+      setCooldown(5); // 5s cooldown
 
       if (res.data.status === 'Accepted') {
         triggerConfetti();
@@ -194,8 +214,12 @@ export default function ProblemWorkspace() {
       }
       loadSubmissions();
     } catch (err) {
+      if (err.response?.status === 429) {
+        const retry = err.response.data?.retryAfter || 5;
+        setCooldown(retry);
+      }
       setExecutionResult({
-        status: 'Runtime Error',
+        status: err.response?.data?.status || 'Runtime Error',
         passed: false,
         errorDetails: err.response?.data?.message || err.message
       });
@@ -773,20 +797,20 @@ export default function ProblemWorkspace() {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={handleRunCode}
-                  disabled={isRunning || isSubmitting}
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 disabled:opacity-50 transition-colors"
+                  disabled={isRunning || isSubmitting || cooldown > 0}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 disabled:opacity-50 transition-colors cursor-pointer disabled:cursor-not-allowed"
                 >
                   <Play className={`w-3.5 h-3.5 text-emerald-400 ${isRunning ? 'animate-spin' : 'fill-emerald-400'}`} />
-                  {isRunning ? 'Running...' : 'Run Code'}
+                  {isRunning ? 'Running...' : cooldown > 0 ? `Wait (${cooldown}s)` : 'Run Code'}
                 </button>
 
                 <button
                   onClick={handleSubmitCode}
-                  disabled={isRunning || isSubmitting}
-                  className="inline-flex items-center gap-2 px-5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 disabled:opacity-50 transition-all hover:scale-105"
+                  disabled={isRunning || isSubmitting || cooldown > 0}
+                  className="inline-flex items-center gap-2 px-5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 disabled:opacity-50 transition-all hover:scale-105 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <Send className={`w-3.5 h-3.5 ${isSubmitting ? 'animate-bounce' : ''}`} />
-                  {isSubmitting ? 'Evaluating...' : 'Submit Solution'}
+                  {isSubmitting ? 'Evaluating...' : cooldown > 0 ? `Cooldown (${cooldown}s)` : 'Submit Solution'}
                 </button>
               </div>
             </div>

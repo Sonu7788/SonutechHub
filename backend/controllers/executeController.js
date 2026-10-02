@@ -2,6 +2,38 @@ import Question from '../models/Question.js';
 import Submission from '../models/Submission.js';
 import User from '../models/User.js';
 import { executeJavaCode } from '../utils/javaRunner.js';
+import { executionQueue } from '../utils/executionQueue.js';
+
+// Per-user cooldown tracker (5 seconds cooldown between runs to prevent server flood)
+const userCooldownMap = new Map();
+const COOLDOWN_MS = parseInt(process.env.CODE_RUN_COOLDOWN_MS, 10) || 5000;
+
+// Periodic cleanup of stale cooldown entries (every 2 minutes)
+setInterval(() => {
+  const now = Date.now();
+  for (const [userId, lastTime] of userCooldownMap.entries()) {
+    if (now - lastTime > 60000) {
+      userCooldownMap.delete(userId);
+    }
+  }
+}, 120000);
+
+/**
+ * Check if user is currently in cooldown
+ */
+function checkUserCooldown(userId) {
+  const now = Date.now();
+  const lastRun = userCooldownMap.get(userId.toString());
+  if (lastRun && now - lastRun < COOLDOWN_MS) {
+    const remainingSeconds = Math.ceil((COOLDOWN_MS - (now - lastRun)) / 1000);
+    return {
+      isRateLimited: true,
+      remainingSeconds
+    };
+  }
+  userCooldownMap.set(userId.toString(), now);
+  return { isRateLimited: false, remainingSeconds: 0 };
+}
 
 // @route POST /api/execute/run
 // Runs against visible test cases or custom input (Strictly Protected)
@@ -12,6 +44,17 @@ export const runCode = async (req, res) => {
 
     if (!code || !code.trim()) {
       return res.status(400).json({ success: false, message: 'Code cannot be empty' });
+    }
+
+    // Check per-user cooldown
+    const rateCheck = checkUserCooldown(userId);
+    if (rateCheck.isRateLimited) {
+      return res.status(429).json({
+        success: false,
+        status: 'Rate Limited',
+        message: `⏳ Cooldown active: Please wait ${rateCheck.remainingSeconds}s before running code again.`,
+        retryAfter: rateCheck.remainingSeconds
+      });
     }
 
     // Save working draft code for this user & question
@@ -38,7 +81,7 @@ export const runCode = async (req, res) => {
 
     // If custom input provided
     if (customInput !== undefined && customInput !== null && customInput !== '') {
-      const result = await executeJavaCode(code, [], customInput);
+      const result = await executionQueue.enqueue(() => executeJavaCode(code, [], customInput));
       return res.json({
         success: true,
         isCustom: true,
@@ -63,7 +106,7 @@ export const runCode = async (req, res) => {
       testCasesToRun = [{ input: '', expectedOutput: '', isHidden: false }];
     }
 
-    const result = await executeJavaCode(code, testCasesToRun);
+    const result = await executionQueue.enqueue(() => executeJavaCode(code, testCasesToRun));
 
     res.json({
       success: true,
@@ -89,6 +132,17 @@ export const submitCode = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Code cannot be empty' });
     }
 
+    // Check per-user cooldown
+    const rateCheck = checkUserCooldown(userId);
+    if (rateCheck.isRateLimited) {
+      return res.status(429).json({
+        success: false,
+        status: 'Rate Limited',
+        message: `⏳ Cooldown active: Please wait ${rateCheck.remainingSeconds}s before submitting again.`,
+        retryAfter: rateCheck.remainingSeconds
+      });
+    }
+
     const question = await Question.findById(questionId);
     if (!question) {
       return res.status(404).json({ success: false, message: 'Question not found' });
@@ -99,8 +153,8 @@ export const submitCode = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Question has no test cases configured' });
     }
 
-    // Execute against all test cases
-    const execResult = await executeJavaCode(code, allTestCases);
+    // Execute against all test cases via concurrency-bounded queue
+    const execResult = await executionQueue.enqueue(() => executeJavaCode(code, allTestCases));
 
     // Create submission record with full code and execution metrics
     const submission = await Submission.create({
@@ -161,3 +215,4 @@ export const submitCode = async (req, res) => {
     });
   }
 };
+

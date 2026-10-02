@@ -83,8 +83,8 @@ function runSingleCase(tempDir, className, input, timeoutMs = 4000) {
     let stderr = '';
     let isTimedOut = false;
 
-    // Run java process with limits
-    const runProcess = spawn('java', ['-cp', tempDir, '-Xmx256m', className]);
+    // Run java process with tight memory bounds (128MB max heap) for 512MB RAM servers
+    const runProcess = spawn('java', ['-cp', tempDir, '-Xms16m', '-Xmx128m', className]);
 
     const timer = setTimeout(() => {
       isTimedOut = true;
@@ -208,9 +208,9 @@ export async function executeJavaCode(rawCode, testCases = [], customInput = nul
       mainClassName = className;
     }
 
-    // 1. Compile all source files
+    // 1. Compile all source files with bounded compiler memory (-J-Xmx128m)
     const compileResult = await new Promise((resolve) => {
-      const javac = spawn('javac', ['-encoding', 'UTF-8', '-cp', tempDir, ...filesToCompile]);
+      const javac = spawn('javac', ['-J-Xmx128m', '-encoding', 'UTF-8', '-cp', tempDir, ...filesToCompile]);
       let compileErr = '';
 
       javac.stderr.on('data', (data) => {
