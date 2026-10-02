@@ -3,7 +3,8 @@ import {
   categoryAPI, 
   questionAPI, 
   submissionAPI,
-  adminUserAPI
+  adminUserAPI,
+  patternAPI
 } from '../services/api';
 import DifficultyBadge from '../components/DifficultyBadge';
 import Pagination from '../components/Pagination';
@@ -32,13 +33,18 @@ import {
   Eye,
   Trophy,
   Clock,
-  ChevronRight
+  ChevronRight,
+  BookOpen,
+  Lightbulb,
+  HardDrive,
+  Copy
 } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('questions'); // 'questions' | 'users' | 'bulk-upload' | 'categories' | 'analytics'
+  const [activeTab, setActiveTab] = useState('questions'); // 'questions' | 'patterns' | 'users' | 'bulk-upload' | 'categories' | 'analytics'
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [patterns, setPatterns] = useState([]);
   const [users, setUsers] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,6 +66,23 @@ export default function AdminDashboard() {
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+
+  // Patterns / Notes State
+  const [showPatternModal, setShowPatternModal] = useState(false);
+  const [editingPattern, setEditingPattern] = useState(null);
+  const [patternForm, setPatternForm] = useState({
+    title: '',
+    category: '',
+    difficulty: 'Easy',
+    timeComplexity: 'O(N)',
+    spaceComplexity: 'O(1)',
+    description: '',
+    keyTakeaways: '',
+    order: 0,
+    codeExamples: [
+      { title: 'Example 1', problemDescription: '', code: 'public class Solution {\n    // Implementation\n}', language: 'java', explanation: 'Step-by-step walkthrough...' }
+    ]
+  });
 
   // User Management Modals
   const [showUserEditModal, setShowUserEditModal] = useState(false);
@@ -108,17 +131,19 @@ export default function AdminDashboard() {
   const loadAllData = async () => {
     setLoading(true);
     try {
-      const [qRes, cRes, aRes, uRes] = await Promise.all([
+      const [qRes, cRes, aRes, uRes, pRes] = await Promise.all([
         questionAPI.getAll({ limit: 500 }),
         categoryAPI.getAll(),
         submissionAPI.getAdminAnalytics(),
-        adminUserAPI.getAll({ limit: 500 })
+        adminUserAPI.getAll({ limit: 500 }),
+        patternAPI.getAll()
       ]);
 
       if (qRes.data.success) setQuestions(qRes.data.questions);
       if (cRes.data.success) setCategories(cRes.data.categories);
       if (aRes.data.success) setAnalytics(aRes.data.analytics);
       if (uRes.data.success) setUsers(uRes.data.users);
+      if (pRes.data.success) setPatterns(pRes.data.patterns || []);
     } catch (err) {
       console.error('Failed to load admin data:', err);
     } finally {
@@ -323,6 +348,110 @@ export default function AdminDashboard() {
     }
   };
 
+  // Pattern Handlers
+  const handleOpenNewPattern = () => {
+    setEditingPattern(null);
+    setPatternForm({
+      title: '',
+      category: categories[0]?._id || '',
+      difficulty: 'Easy',
+      timeComplexity: 'O(N)',
+      spaceComplexity: 'O(1)',
+      description: '',
+      keyTakeaways: '',
+      order: 0,
+      codeExamples: [
+        { title: 'Example 1', problemDescription: '', code: 'public class Solution {\n    // Code here\n}', language: 'java', explanation: '' }
+      ]
+    });
+    setShowPatternModal(true);
+  };
+
+  const handleEditPattern = (pat) => {
+    setEditingPattern(pat);
+    setPatternForm({
+      title: pat.title || '',
+      category: pat.category?._id || pat.category || '',
+      difficulty: pat.difficulty || 'Easy',
+      timeComplexity: pat.timeComplexity || 'O(N)',
+      spaceComplexity: pat.spaceComplexity || 'O(1)',
+      description: pat.description || '',
+      keyTakeaways: Array.isArray(pat.keyTakeaways) ? pat.keyTakeaways.join('\n') : '',
+      order: pat.order || 0,
+      codeExamples: pat.codeExamples?.length ? pat.codeExamples : [{ title: 'Example 1', problemDescription: '', code: '', language: 'java', explanation: '' }]
+    });
+    setShowPatternModal(true);
+  };
+
+  const handleSavePattern = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...patternForm,
+        keyTakeaways: patternForm.keyTakeaways
+          ? patternForm.keyTakeaways.split('\n').map(t => t.trim()).filter(Boolean)
+          : []
+      };
+
+      if (editingPattern) {
+        const res = await patternAPI.update(editingPattern._id, payload);
+        if (res.data.success) {
+          setShowPatternModal(false);
+          loadAllData();
+        }
+      } else {
+        const res = await patternAPI.create(payload);
+        if (res.data.success) {
+          setShowPatternModal(false);
+          loadAllData();
+        }
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to save pattern note');
+    }
+  };
+
+  const handleDeletePattern = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this pattern note?')) return;
+    try {
+      const res = await patternAPI.delete(id);
+      if (res.data.success) {
+        loadAllData();
+      }
+    } catch (err) {
+      alert('Failed to delete pattern');
+    }
+  };
+
+  const handleAddPatternExample = () => {
+    setPatternForm(prev => ({
+      ...prev,
+      codeExamples: [
+        ...prev.codeExamples,
+        { title: `Example ${prev.codeExamples.length + 1}`, problemDescription: '', code: 'public class Solution {\n    \n}', language: 'java', explanation: '' }
+      ]
+    }));
+  };
+
+  const handleRemovePatternExample = (index) => {
+    if (patternForm.codeExamples.length <= 1) {
+      alert('A pattern must have at least one code example.');
+      return;
+    }
+    setPatternForm(prev => ({
+      ...prev,
+      codeExamples: prev.codeExamples.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handlePatternExampleChange = (index, field, value) => {
+    setPatternForm(prev => {
+      const updated = [...prev.codeExamples];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, codeExamples: updated };
+    });
+  };
+
   // Bulk Upload Handlers
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -450,6 +579,17 @@ export default function AdminDashboard() {
           }`}
         >
           <Code2 className="w-4 h-4" /> Manage Questions ({questions.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('patterns')}
+          className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all ${
+            activeTab === 'patterns'
+              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+              : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+          }`}
+        >
+          <BookOpen className="w-4 h-4 text-amber-400" /> Patterns & Notes ({patterns.length})
         </button>
 
         <button
@@ -614,6 +754,91 @@ export default function AdminDashboard() {
                 pageSize={qPageSize}
                 onPageChange={setQPage}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: PATTERNS & NOTES MANAGEMENT */}
+      {activeTab === 'patterns' && (
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-gray-900/60 border border-gray-800">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleOpenNewPattern}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition-all"
+              >
+                <Plus className="w-4 h-4" /> Create Pattern / Note
+              </button>
+            </div>
+
+            <div className="text-xs text-gray-400">
+              Showing {patterns.length} curated study notes with multi-code walkthroughs
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-gray-900/70 border border-gray-800 overflow-hidden shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="text-[11px] text-gray-400 uppercase bg-gray-950/60 border-b border-gray-800">
+                  <tr>
+                    <th className="py-3.5 px-4">Pattern Title</th>
+                    <th className="py-3.5 px-4">Category</th>
+                    <th className="py-3.5 px-4">Difficulty</th>
+                    <th className="py-3.5 px-4">Time Complexity</th>
+                    <th className="py-3.5 px-4">Space Complexity</th>
+                    <th className="py-3.5 px-4 text-center">Examples</th>
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800/60">
+                  {patterns.map((pat) => (
+                    <tr key={pat._id} className="hover:bg-gray-800/30 transition-colors">
+                      <td className="py-4 px-4 font-semibold text-white">
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-amber-400" />
+                          <span>{pat.title}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="text-xs px-2.5 py-1 rounded bg-gray-800 text-gray-300 border border-gray-700">
+                          {pat.category?.name || 'DSA'}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <DifficultyBadge difficulty={pat.difficulty} size="sm" />
+                      </td>
+                      <td className="py-4 px-4 font-mono text-xs text-emerald-400 font-semibold">
+                        {pat.timeComplexity || 'O(N)'}
+                      </td>
+                      <td className="py-4 px-4 font-mono text-xs text-blue-400 font-semibold">
+                        {pat.spaceComplexity || 'O(1)'}
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <span className="text-xs font-mono px-2 py-0.5 rounded bg-gray-800 text-amber-300 font-bold">
+                          {pat.codeExamples?.length || 0}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleEditPattern(pat)}
+                          className="p-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-colors inline-flex items-center"
+                          title="Edit Pattern Note"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeletePattern(pat._id)}
+                          className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors inline-flex items-center"
+                          title="Delete Pattern Note"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1480,6 +1705,212 @@ export default function AdminDashboard() {
                   className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold"
                 >
                   Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* PATTERN MODAL */}
+      {showPatternModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-[#131b2e] border border-gray-700 rounded-3xl w-full max-w-4xl p-6 sm:p-8 space-y-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-amber-400" />
+                {editingPattern ? 'Edit Pattern Note' : 'Create New Pattern Note'}
+              </h3>
+              <button onClick={() => setShowPatternModal(false)} className="text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePattern} className="space-y-5 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1 sm:col-span-2">
+                  <label className="text-gray-300 font-semibold">Pattern Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={patternForm.title}
+                    onChange={(e) => setPatternForm({ ...patternForm, title: e.target.value })}
+                    placeholder="e.g. Two Pointers Technique"
+                    className="w-full p-2.5 rounded-xl bg-gray-800 border border-gray-700 text-white"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-gray-300 font-semibold">Category *</label>
+                  <select
+                    required
+                    value={patternForm.category}
+                    onChange={(e) => setPatternForm({ ...patternForm, category: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-gray-800 border border-gray-700 text-white"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((c) => (
+                      <option key={c._id} value={c._id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-gray-300 font-semibold">Difficulty Level</label>
+                  <select
+                    value={patternForm.difficulty}
+                    onChange={(e) => setPatternForm({ ...patternForm, difficulty: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-gray-800 border border-gray-700 text-white"
+                  >
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                    <option value="All Levels">All Levels</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-gray-300 font-semibold">Time Complexity</label>
+                  <input
+                    type="text"
+                    value={patternForm.timeComplexity}
+                    onChange={(e) => setPatternForm({ ...patternForm, timeComplexity: e.target.value })}
+                    placeholder="e.g. O(N) instead of O(N^2)"
+                    className="w-full p-2.5 rounded-xl bg-gray-800 border border-gray-700 text-white font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-gray-300 font-semibold">Space Complexity</label>
+                  <input
+                    type="text"
+                    value={patternForm.spaceComplexity}
+                    onChange={(e) => setPatternForm({ ...patternForm, spaceComplexity: e.target.value })}
+                    placeholder="e.g. O(1) Auxiliary Space"
+                    className="w-full p-2.5 rounded-xl bg-gray-800 border border-gray-700 text-white font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-gray-300 font-semibold">Pattern Intuition & Description (Markdown) *</label>
+                <textarea
+                  required
+                  rows={5}
+                  value={patternForm.description}
+                  onChange={(e) => setPatternForm({ ...patternForm, description: e.target.value })}
+                  placeholder="Explain when and why to use this pattern, decision tree, edge cases..."
+                  className="w-full p-3 rounded-xl bg-gray-800 border border-gray-700 text-white font-mono leading-relaxed"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-gray-300 font-semibold">Key Rules of Thumb (1 per line)</label>
+                <textarea
+                  rows={3}
+                  value={patternForm.keyTakeaways}
+                  onChange={(e) => setPatternForm({ ...patternForm, keyTakeaways: e.target.value })}
+                  placeholder="e.g. In sorted arrays, check if two pointers can eliminate a nested loop."
+                  className="w-full p-3 rounded-xl bg-gray-800 border border-gray-700 text-white leading-relaxed"
+                />
+              </div>
+
+              {/* Code Examples Builder */}
+              <div className="space-y-4 pt-2 border-t border-gray-800">
+                <div className="flex items-center justify-between">
+                  <label className="text-white font-bold text-sm flex items-center gap-2">
+                    <Code2 className="w-4 h-4 text-emerald-400" />
+                    Code Examples & Explanations ({patternForm.codeExamples.length})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleAddPatternExample}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/30 font-semibold flex items-center gap-1.5 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Another Example
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {patternForm.codeExamples.map((ex, idx) => (
+                    <div key={idx} className="p-4 rounded-2xl bg-gray-900 border border-gray-800 space-y-3 relative">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-emerald-400">Example #{idx + 1}</span>
+                        {patternForm.codeExamples.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePatternExample(idx)}
+                            className="text-rose-400 hover:text-rose-300 text-xs font-semibold flex items-center gap-1"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" /> Remove Example
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-gray-400">Example Title *</label>
+                          <input
+                            type="text"
+                            required
+                            value={ex.title}
+                            onChange={(e) => handlePatternExampleChange(idx, 'title', e.target.value)}
+                            placeholder="e.g. Example 1: Pair with Target Sum in Sorted Array"
+                            className="w-full p-2 rounded-xl bg-gray-800 border border-gray-700 text-white"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-gray-400">Problem Description (Optional)</label>
+                          <input
+                            type="text"
+                            value={ex.problemDescription}
+                            onChange={(e) => handlePatternExampleChange(idx, 'problemDescription', e.target.value)}
+                            placeholder="e.g. Given a sorted array, find two numbers that sum to target."
+                            className="w-full p-2 rounded-xl bg-gray-800 border border-gray-700 text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-gray-400">Java Code Implementation *</label>
+                        <textarea
+                          required
+                          rows={6}
+                          value={ex.code}
+                          onChange={(e) => handlePatternExampleChange(idx, 'code', e.target.value)}
+                          className="w-full p-3 rounded-xl bg-black border border-gray-800 text-emerald-400 font-mono text-xs leading-relaxed"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-gray-400">Step-by-Step Explanation *</label>
+                        <textarea
+                          required
+                          rows={4}
+                          value={ex.explanation}
+                          onChange={(e) => handlePatternExampleChange(idx, 'explanation', e.target.value)}
+                          placeholder="1. Initialize pointers at ends. 2. Move left pointer when sum is too small..."
+                          className="w-full p-3 rounded-xl bg-gray-800 border border-gray-700 text-white leading-relaxed"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-800 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPatternModal(false)}
+                  className="px-4 py-2 rounded-xl bg-gray-800 text-gray-300 hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-lg shadow-emerald-600/20"
+                >
+                  {editingPattern ? 'Save Changes' : 'Create Pattern'}
                 </button>
               </div>
             </form>

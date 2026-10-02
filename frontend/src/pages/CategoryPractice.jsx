@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { categoryAPI, questionAPI } from '../services/api';
+import { categoryAPI, questionAPI, patternAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import DifficultyBadge from '../components/DifficultyBadge';
 import Pagination from '../components/Pagination';
@@ -25,7 +25,13 @@ import {
   Flame,
   LayoutList,
   Quote,
-  Check
+  Check,
+  FileText,
+  Copy,
+  Clock,
+  HardDrive,
+  Lightbulb,
+  ExternalLink
 } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -35,10 +41,15 @@ export default function CategoryPractice() {
 
   const [categories, setCategories] = useState([]);
   const [questions, setQuestions] = useState([]);
+  const [patterns, setPatterns] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [patternsLoading, setPatternsLoading] = useState(false);
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
+  const [copiedCodeId, setCopiedCodeId] = useState(null);
 
+  // Active Main View: 'problems' or 'patterns'
+  const activeView = searchParams.get('tab') === 'patterns' ? 'patterns' : 'problems';
   const currentCategory = searchParams.get('category') || '';
   const currentDifficulty = searchParams.get('difficulty') || 'All';
   const currentSearch = searchParams.get('search') || '';
@@ -46,7 +57,9 @@ export default function CategoryPractice() {
   const pageSize = 10;
 
   const [searchInput, setSearchInput] = useState(currentSearch);
+  const [selectedPatternId, setSelectedPatternId] = useState(null);
 
+  // 1. Fetch Categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -61,6 +74,7 @@ export default function CategoryPractice() {
     fetchCategories();
   }, []);
 
+  // 2. Fetch Questions
   useEffect(() => {
     const fetchQuestions = async () => {
       setLoading(true);
@@ -86,6 +100,41 @@ export default function CategoryPractice() {
 
     fetchQuestions();
   }, [currentCategory, currentDifficulty, currentSearch, currentPage]);
+
+  // 3. Fetch Patterns / Study Notes
+  useEffect(() => {
+    const fetchPatterns = async () => {
+      setPatternsLoading(true);
+      try {
+        const params = {
+          category: currentCategory || undefined,
+          search: currentSearch || undefined,
+          difficulty: currentDifficulty !== 'All' ? currentDifficulty : undefined
+        };
+        const res = await patternAPI.getAll(params);
+        if (res.data.success) {
+          setPatterns(res.data.patterns || []);
+        }
+      } catch (err) {
+        console.error('Failed to load patterns', err);
+      } finally {
+        setPatternsLoading(false);
+      }
+    };
+
+    fetchPatterns();
+  }, [currentCategory, currentSearch, currentDifficulty]);
+
+  const handleTabToggle = (tabName) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (tabName === 'patterns') {
+      newParams.set('tab', 'patterns');
+    } else {
+      newParams.delete('tab');
+    }
+    newParams.delete('page');
+    setSearchParams(newParams);
+  };
 
   const handleCategorySelect = (slug) => {
     const newParams = new URLSearchParams(searchParams);
@@ -133,6 +182,12 @@ export default function CategoryPractice() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleCopyCode = (code, id) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCodeId(id);
+    setTimeout(() => setCopiedCodeId(null), 2000);
+  };
+
   const isSolved = (questionId) => {
     if (!user?.solvedQuestions) return false;
     return user.solvedQuestions.some(q => (typeof q === 'string' ? q : q._id) === questionId);
@@ -148,9 +203,9 @@ export default function CategoryPractice() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
       <SEO
-        title={currentCategory ? `${categories.find(c => c.slug === currentCategory)?.name || currentCategory} Practice Track` : 'Java DSA Practice Track - SonuTechHub'}
-        description={`Master Java Data Structures & Algorithms with curated problems, hints, and OpenJDK 24 compiler verification.`}
-        keywords={`Java DSA Practice, Java Coding Questions, ${currentCategory || 'Arrays, Strings, Trees, Dynamic Programming'}`}
+        title={currentCategory ? `${categories.find(c => c.slug === currentCategory)?.name || currentCategory} Practice Track & Patterns` : 'Java DSA Practice Track & Patterns - SonuTechHub'}
+        description={`Master Java Data Structures & Algorithms with curated problems, algorithmic pattern notes (Two Pointers, Sliding Window), and OpenJDK 24 compiler verification.`}
+        keywords={`Java DSA Practice, DSA Patterns, Two Pointers Pattern, Sliding Window Pattern, Java Coding Questions, ${currentCategory || 'Arrays, Strings, Trees, Dynamic Programming'}`}
       />
 
       {/* Hero Header Banner */}
@@ -163,11 +218,11 @@ export default function CategoryPractice() {
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-8 bg-blue-600 rounded-full shrink-0" />
                 <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                  Java <span className="text-blue-600">DSA</span> Practice Track
+                  Java <span className="text-blue-600">DSA</span> Practice Track & Patterns
                 </h1>
               </div>
               <p className="text-slate-500 text-xs sm:text-sm font-normal mt-1.5">
-                Master Data Structures & Algorithms with carefully curated problems, hints and test cases.
+                Master Data Structures & Algorithms with curated problems, in-depth pattern study notes, and test cases.
               </p>
             </div>
 
@@ -184,17 +239,17 @@ export default function CategoryPractice() {
               </div>
 
               <div className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-                <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
-                  <BarChart3 className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="font-bold text-xs text-slate-900">Multiple Topics</div>
-                  <div className="text-[10px] text-slate-400">From basic to advanced</div>
+                  <div className="font-bold text-xs text-slate-900">Pattern Notes</div>
+                  <div className="text-[10px] text-slate-400">Multi-code examples</div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-                <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
                   <Code2 className="w-4 h-4" />
                 </div>
                 <div>
@@ -225,7 +280,7 @@ export default function CategoryPractice() {
                     <span className="w-2 h-2 rounded-full bg-white/40" />
                     <span className="w-2 h-2 rounded-full bg-white/40" />
                   </div>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/20">JAVA</span>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/20">PATTERNS</span>
                 </div>
                 <div className="text-center font-mono text-2xl font-bold tracking-widest text-white/90">
                   &lt;/&gt;
@@ -237,10 +292,10 @@ export default function CategoryPractice() {
             </div>
 
             <div className="space-y-1 font-serif italic text-xs text-slate-600 border-l border-blue-200 pl-3">
+              <div>Patterns</div>
               <div>Practice</div>
               <div>Solve</div>
-              <div>Improve</div>
-              <div className="font-bold text-blue-600">Grow</div>
+              <div className="font-bold text-blue-600">Excel</div>
             </div>
           </div>
 
@@ -319,28 +374,41 @@ export default function CategoryPractice() {
       {/* Main Two-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* Left Column: Problems Card (70% - lg:col-span-8) */}
+        {/* Left Column (70% - lg:col-span-8) */}
         <div className="lg:col-span-8 space-y-4">
           <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
             
-            {/* Table Top Controls & Search Bar */}
-            <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <LayoutList className="w-4 h-4 text-blue-600" />
-                  Problems ({total})
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Choose a problem to start practicing.
-                </p>
+            {/* Main Tabs Navigation Header: Problems vs Patterns */}
+            <div className="px-5 pt-4 pb-3 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+                <button
+                  onClick={() => handleTabToggle('problems')}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    activeView === 'problems'
+                      ? 'bg-white text-blue-600 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <LayoutList className="w-3.5 h-3.5" />
+                  <span>Problems ({total})</span>
+                </button>
+
+                <button
+                  onClick={() => handleTabToggle('patterns')}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    activeView === 'patterns'
+                      ? 'bg-white text-blue-600 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Patterns & Notes ({patterns.length})</span>
+                </button>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                {/* Difficulty Filter */}
+              {/* Filters & Search */}
+              <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                 <div className="flex items-center gap-1">
-                  <span className="text-xs text-slate-500 font-medium mr-1 flex items-center gap-1">
-                    <Filter className="w-3 h-3 text-slate-400" /> Difficulty:
-                  </span>
                   {['All', 'Easy', 'Medium', 'Hard'].map((diff) => {
                     const isActive = currentDifficulty === diff;
                     return (
@@ -360,11 +428,11 @@ export default function CategoryPractice() {
                 </div>
 
                 {/* Search Input */}
-                <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-52">
+                <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-44">
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search problems, tags..."
+                    placeholder="Search..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     className="w-full pl-8 pr-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
@@ -373,102 +441,264 @@ export default function CategoryPractice() {
               </div>
             </div>
 
-            {/* Problems Table */}
-            {loading ? (
-              <div className="p-12 text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mb-3" />
-                <p className="text-xs text-slate-400">Loading Java DSA problems...</p>
-              </div>
-            ) : questions.length === 0 ? (
-              <div className="p-12 text-center">
-                <Code2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <h3 className="text-base font-bold text-slate-800">No questions found</h3>
-                <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                  Try adjusting your category or difficulty filter, or search with different keywords.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="text-[11px] text-slate-400 uppercase bg-slate-50/80 border-b border-slate-100">
-                    <tr>
-                      <th className="py-3 px-4 w-10 text-center">#</th>
-                      <th className="py-3 px-4">Title</th>
-                      <th className="py-3 px-4">Category</th>
-                      <th className="py-3 px-4">Difficulty</th>
-                      <th className="py-3 px-4">Tags</th>
-                      <th className="py-3 px-4 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {questions.map((q, idx) => {
-                      const solved = isSolved(q._id);
-                      return (
-                        <tr
-                          key={q._id}
-                          className="hover:bg-blue-50/30 transition-colors group"
-                        >
-                          <td className="py-3.5 px-4 text-center text-xs font-mono text-slate-400">
-                            {solved ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto inline" />
-                            ) : (
-                              (currentPage - 1) * pageSize + idx + 1
-                            )}
-                          </td>
-                          <td className="py-3.5 px-4 font-bold text-slate-900 text-xs sm:text-sm">
-                            <Link
-                              to={`/problem/${q._id}`}
-                              className="group-hover:text-blue-600 transition-colors"
-                            >
-                              {q.title}
-                            </Link>
-                          </td>
-                          <td className="py-3.5 px-4">
-                            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600">
-                              {q.category?.name || 'DSA'}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4">
-                            <DifficultyBadge difficulty={q.difficulty} size="sm" />
-                          </td>
-                          <td className="py-3.5 px-4">
-                            <div className="flex flex-wrap gap-1">
-                              {(q.tags || []).slice(0, 2).map((tag, i) => (
-                                <span
-                                  key={i}
-                                  className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                          <td className="py-3.5 px-4 text-center">
-                            <Link
-                              to={`/problem/${q._id}`}
-                              className="inline-flex items-center justify-center gap-1 px-4 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xs hover:scale-105"
-                            >
-                              Solve <ArrowRight className="w-3.5 h-3.5" />
-                            </Link>
-                          </td>
+            {/* TAB VIEW 1: PROBLEMS TABLE */}
+            {activeView === 'problems' && (
+              <>
+                {loading ? (
+                  <div className="p-12 text-center">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mb-3" />
+                    <p className="text-xs text-slate-400">Loading Java DSA problems...</p>
+                  </div>
+                ) : questions.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <Code2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <h3 className="text-base font-bold text-slate-800">No questions found</h3>
+                    <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                      Try adjusting your category or difficulty filter, or switch to the Patterns tab.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="text-[11px] text-slate-400 uppercase bg-slate-50/80 border-b border-slate-100">
+                        <tr>
+                          <th className="py-3 px-4 w-10 text-center">#</th>
+                          <th className="py-3 px-4">Title</th>
+                          <th className="py-3 px-4">Category</th>
+                          <th className="py-3 px-4">Difficulty</th>
+                          <th className="py-3 px-4">Tags</th>
+                          <th className="py-3 px-4 text-center">Action</th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {questions.map((q, idx) => {
+                          const solved = isSolved(q._id);
+                          return (
+                            <tr
+                              key={q._id}
+                              className="hover:bg-blue-50/30 transition-colors group"
+                            >
+                              <td className="py-3.5 px-4 text-center text-xs font-mono text-slate-400">
+                                {solved ? (
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto inline" />
+                                ) : (
+                                  (currentPage - 1) * pageSize + idx + 1
+                                )}
+                              </td>
+                              <td className="py-3.5 px-4 font-bold text-slate-900 text-xs sm:text-sm">
+                                <Link
+                                  to={`/problem/${q._id}`}
+                                  className="group-hover:text-blue-600 transition-colors"
+                                >
+                                  {q.title}
+                                </Link>
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600">
+                                  {q.category?.name || 'DSA'}
+                                </span>
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <DifficultyBadge difficulty={q.difficulty} size="sm" />
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <div className="flex flex-wrap gap-1">
+                                  {(q.tags || []).slice(0, 2).map((tag, i) => (
+                                    <span
+                                      key={i}
+                                      className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium"
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </td>
+                              <td className="py-3.5 px-4 text-center">
+                                <Link
+                                  to={`/problem/${q._id}`}
+                                  className="inline-flex items-center justify-center gap-1 px-4 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xs hover:scale-105"
+                                >
+                                  Solve <ArrowRight className="w-3.5 h-3.5" />
+                                </Link>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Pagination Footer */}
+                {total > pageSize && (
+                  <div className="border-t border-slate-100 px-4 py-2">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(total / pageSize)}
+                      totalItems={total}
+                      pageSize={pageSize}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
-            {/* Pagination Footer */}
-            {total > pageSize && (
-              <div className="border-t border-slate-100 px-4 py-2">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={Math.ceil(total / pageSize)}
-                  totalItems={total}
-                  pageSize={pageSize}
-                  onPageChange={handlePageChange}
-                />
+            {/* TAB VIEW 2: PATTERNS & STUDY NOTES */}
+            {activeView === 'patterns' && (
+              <div className="p-5 space-y-6">
+                {patternsLoading ? (
+                  <div className="p-12 text-center">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mb-3" />
+                    <p className="text-xs text-slate-400">Loading DSA Patterns & Study Notes...</p>
+                  </div>
+                ) : patterns.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <h3 className="text-base font-bold text-slate-800">No patterns found</h3>
+                    <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                      Select a different category or search term to discover curated DSA pattern notes.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    {patterns.map((pat) => (
+                      <div
+                        key={pat._id}
+                        className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm space-y-6 hover:border-blue-200 transition-colors"
+                      >
+                        {/* Pattern Header */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-bold">
+                                {pat.category?.name || 'DSA Pattern'}
+                              </span>
+                              <DifficultyBadge difficulty={pat.difficulty} size="sm" />
+                            </div>
+                            <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 pt-1">
+                              <Sparkles className="w-5 h-5 text-amber-500" />
+                              {pat.title}
+                            </h2>
+                          </div>
+
+                          {/* Complexities */}
+                          <div className="flex items-center gap-3 shrink-0">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                              <Clock className="w-3.5 h-3.5 text-blue-600" />
+                              <span className="text-slate-500">Time:</span>
+                              <span className="font-bold text-slate-800 font-mono">{pat.timeComplexity || 'O(N)'}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                              <HardDrive className="w-3.5 h-3.5 text-emerald-600" />
+                              <span className="text-slate-500">Space:</span>
+                              <span className="font-bold text-slate-800 font-mono">{pat.spaceComplexity || 'O(1)'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Description & Intuition */}
+                        <div className="space-y-2 text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                          <div className="font-bold text-slate-900 flex items-center gap-1.5 text-xs uppercase tracking-wider text-blue-600">
+                            <Lightbulb className="w-4 h-4" /> Intuition & When to Use
+                          </div>
+                          <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-100 font-normal">
+                            {pat.description}
+                          </div>
+                        </div>
+
+                        {/* Key Takeaways */}
+                        {pat.keyTakeaways?.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="font-bold text-slate-900 text-xs uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Key Rules of Thumb
+                            </div>
+                            <ul className="grid grid-cols-1 gap-2 text-xs text-slate-600">
+                              {pat.keyTakeaways.map((tip, i) => (
+                                <li key={i} className="flex items-start gap-2 bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100/60">
+                                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                                  <span>{tip}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Multiple Code Examples & Explanations */}
+                        {pat.codeExamples?.length > 0 && (
+                          <div className="space-y-5 pt-2">
+                            <div className="font-extrabold text-slate-900 text-sm flex items-center gap-2 border-b border-slate-100 pb-2">
+                              <Code2 className="w-4 h-4 text-blue-600" />
+                              Code Implementations & Walkthroughs ({pat.codeExamples.length})
+                            </div>
+
+                            <div className="space-y-6">
+                              {pat.codeExamples.map((ex, exIdx) => (
+                                <div key={ex._id || exIdx} className="rounded-2xl border border-slate-200 bg-slate-900 text-slate-100 overflow-hidden shadow-sm">
+                                  {/* Code Header */}
+                                  <div className="px-4 py-3 bg-slate-950 flex items-center justify-between border-b border-slate-800">
+                                    <div>
+                                      <div className="font-bold text-xs text-white">{ex.title}</div>
+                                      {ex.problemDescription && (
+                                        <div className="text-[11px] text-slate-400 mt-0.5">{ex.problemDescription}</div>
+                                      )}
+                                    </div>
+
+                                    <button
+                                      onClick={() => handleCopyCode(ex.code, `${pat._id}-${exIdx}`)}
+                                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 flex items-center gap-1 transition-colors"
+                                      title="Copy Code"
+                                    >
+                                      {copiedCodeId === `${pat._id}-${exIdx}` ? (
+                                        <>
+                                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                          <span className="text-emerald-400 font-bold">Copied!</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Copy className="w-3.5 h-3.5 text-slate-400" />
+                                          <span>Copy</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
+
+                                  {/* Code Block */}
+                                  <pre className="p-4 text-xs font-mono overflow-x-auto text-emerald-400 bg-slate-900/90 leading-relaxed scrollbar-thin">
+                                    <code>{ex.code}</code>
+                                  </pre>
+
+                                  {/* Step-by-Step Code Explanation */}
+                                  <div className="p-4 bg-slate-800/80 border-t border-slate-800 text-xs text-slate-300 space-y-1.5">
+                                    <div className="font-bold text-slate-100 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                                      <Lightbulb className="w-3.5 h-3.5 text-amber-400" /> Step-by-Step Explanation:
+                                    </div>
+                                    <div className="leading-relaxed whitespace-pre-line text-slate-300">
+                                      {ex.explanation}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action Footer */}
+                        <div className="pt-2 flex items-center justify-between text-xs">
+                          <button
+                            onClick={() => {
+                              handleCategorySelect(pat.category?.slug || '');
+                              handleTabToggle('problems');
+                            }}
+                            className="inline-flex items-center gap-1.5 font-bold text-blue-600 hover:text-blue-700"
+                          >
+                            Solve related {pat.category?.name || 'DSA'} problems <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -478,7 +708,47 @@ export default function CategoryPractice() {
         {/* Right Column: Sidebar (30% - lg:col-span-4) */}
         <div className="lg:col-span-4 space-y-6">
           
-          {/* Card 1: Your Progress */}
+          {/* Card 1: Featured Pattern Guides */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-3.5">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-amber-500" />
+                Featured DSA Patterns
+              </h3>
+              <button
+                onClick={() => handleTabToggle('patterns')}
+                className="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-0.5"
+              >
+                View all <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              {patterns.slice(0, 3).map((pat) => (
+                <div
+                  key={pat._id}
+                  onClick={() => {
+                    handleTabToggle('patterns');
+                  }}
+                  className="p-3 rounded-xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 hover:bg-blue-50/40 cursor-pointer transition-all space-y-1 group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {pat.title}
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-blue-600">
+                      {pat.codeExamples?.length || 1} ex
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 line-clamp-1">
+                    {pat.description.replace(/[#*`]/g, '')}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Card 2: Your Progress */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
@@ -553,7 +823,7 @@ export default function CategoryPractice() {
             </div>
           </div>
 
-          {/* Card 2: Popular Topics */}
+          {/* Card 3: Popular Topics */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
@@ -616,4 +886,3 @@ export default function CategoryPractice() {
     </div>
   );
 }
-

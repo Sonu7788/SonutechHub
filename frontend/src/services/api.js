@@ -86,5 +86,14 @@ export const leaderboardAPI = {
   getLeaderboard: (params) => api.get('/leaderboard', { params }),
 };
 
+// Patterns / Notes endpoints
+export const patternAPI = {
+  getAll: (params) => api.get('/patterns', { params }),
+  getByIdOrSlug: (idOrSlug) => api.get(`/patterns/${idOrSlug}`),
+  create: (data) => api.post('/patterns', data),
+  update: (id, data) => api.put(`/patterns/${id}`, data),
+  delete: (id) => api.delete(`/patterns/${id}`),
+};
+
 export default api;
 
